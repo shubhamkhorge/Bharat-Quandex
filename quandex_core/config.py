@@ -19,15 +19,23 @@ PROJECT_ROOT = Path(__file__).parent.parent.resolve()
 @dataclass
 class DataConfig:
     """Data storage and processing configuration"""
-    raw_data_path: Path = Path("./data_vault/raw_feeds")
-    processed_data_path: Path = Path("./data_vault/market_boards")
-    duckdb_path: Path = Path("./data_vault/market_boards/quandex.duckdb")
+    raw_data_path: Path = None
+    processed_data_path: Path = None
+    duckdb_path: Path = None
     duckdb_memory_limit: str = "4GB"
     backup_days: int = 30
     max_file_size_mb: int = 500
-    conn: duckdb.DuckDBPyConnection = None  # Add this line
+    conn: duckdb.DuckDBPyConnection = None
     
     def __post_init__(self):
+        # Set absolute paths based on project root
+        if self.raw_data_path is None:
+            self.raw_data_path = PROJECT_ROOT / "data_vault" / "raw_feeds"
+        if self.processed_data_path is None:
+            self.processed_data_path = PROJECT_ROOT / "data_vault" / "market_boards"
+        if self.duckdb_path is None:
+            self.duckdb_path = PROJECT_ROOT / "data_vault" / "market_boards" / "quandex.duckdb"
+        
         # Ensure directories exist
         self.raw_data_path.mkdir(parents=True, exist_ok=True)
         self.processed_data_path.mkdir(parents=True, exist_ok=True)
