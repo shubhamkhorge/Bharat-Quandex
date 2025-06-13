@@ -1,0 +1,31 @@
+bharat_quandex/
+├── data_vault/
+│   ├── raw_feeds/
+│   └── market_boards/
+├── research_lab/
+│   ├── 01-data-pipeline-poc.ipynb
+│   └── 02-pairs-discovery.ipynb
+├── quandex_core/
+│   ├── config.py
+│   ├── data_engine/
+│   │   ├── __init__.py
+│   │   ├── nse_equity_fetcher.py
+│   │   ├── nse_options_logger.py
+│   │   └── sentiment_harvester.py
+│   ├── portfolio_logic/
+│   │   ├── __init__.py
+│   │   ├── backtest_engine.py
+│   │   └── risk_models.py
+│   ├── market_insights/
+│   │   ├── __init__.py
+│   │   ├── trading_holidays.py
+│   │   ├── transaction_costs.py
+│   │   └── fii_dii_tracker.py
+│   └── strategy_blueprints/
+│       ├── __init__.py
+│       ├── pairs_arbitrage.py
+│       └── momentum_surge.py
+├── dashboard.py
+├── run_backtest.py
+├── pyproject.toml
+└── README.md
