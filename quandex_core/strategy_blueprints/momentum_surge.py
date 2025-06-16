@@ -1,5 +1,7 @@
 import polars as pl
 from loguru import logger
+from datetime import date
+import numpy as np
 
 from quandex_core.config import config
 
@@ -26,22 +28,6 @@ class MomentumStrategy:
         logger.info(f"Initialized MomentumStrategy: Target portfolio size is Top {self.top_n} stocks from a universe of {len(all_symbols)}.")
 
     def generate_signals(self, market_data: pl.DataFrame) -> pl.DataFrame:
-        """
-        Generates a series of target portfolios based on momentum ranking.
-
-        On each rebalance day, it identifies the top N stocks and signals
-        that these should be the new portfolio holdings.
-
-        Args:
-            market_data (pl.DataFrame): A "long format" DataFrame with columns
-                                        ['date', 'symbol', 'close'] containing
-                                        price data for the entire universe.
-
-        Returns:
-            pl.DataFrame: A DataFrame with ['date', 'target_portfolio'] columns.
-                          The 'target_portfolio' is a list of stock symbols to hold.
-                          This list is forward-filled until the next rebalance date.
-        """
         logger.info("Generating momentum signals for the entire period...")
 
         # 1. Calculate momentum for all stocks in the universe
@@ -82,12 +68,13 @@ class MomentumStrategy:
         rebalance_signals_df = pl.DataFrame(target_portfolios).with_columns(pl.col("date").cast(pl.Date))
         
         # 4. Create a full signal series by forward-filling the target portfolio
-        # This gives the backtester a clear target for every single day.
         signals_df = (
             all_dates.to_frame(name="date")
             .join(rebalance_signals_df, on='date', how='left')
-            .fill_forward('target_portfolio')
-            .drop_nulls() # Drop initial period where no target exists yet
+            .with_columns(
+                pl.col("target_portfolio").fill_null(strategy="forward")
+            )
+            .filter(pl.col("target_portfolio").is_not_null())
         )
         
         logger.info(f"Successfully generated {len(rebalance_dates)} rebalance signals.")
@@ -181,8 +168,8 @@ if __name__ == '__main__':
     print(f"\nGenerated a total of {signals.height} daily signals.")
     print("Showing the portfolio composition on a few rebalance days:")
     
-    # Print the target portfolio on the first 3 rebalance days
-    rebalance_signals = signals.drop_duplicates(subset=['target_portfolio'])
+    # Corrected line: use unique() instead of drop_duplicates()
+    rebalance_signals = signals.unique(subset=['target_portfolio'])
     print(rebalance_signals.head(3))
 
     print("\n--- Test Complete ---")
