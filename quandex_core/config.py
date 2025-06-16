@@ -6,7 +6,7 @@ Centralized settings management with environment variable support
 import os
 from pathlib import Path
 from typing import Dict, List
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from dotenv import load_dotenv
 import duckdb
 from loguru import logger 
@@ -64,6 +64,10 @@ class MarketConfig:
     gst: float = 18.0  # 18% on brokerage + exchange charges
     sebi_charges: float = 0.0001  # 0.0001%
     stamp_duty: float = 0.003  # 0.003% on buy side
+    fallback_symbols: List[str] = field(default_factory=lambda: [
+        "RELIANCE.NS", "TCS.NS", "INFY.NS", "HDFCBANK.NS",
+        "ICICIBANK.NS", "SBIN.NS", "ITC.NS", "HINDUNILVR.NS"
+    ])
     
     # Market holidays (will be loaded dynamically)
     trading_holidays: List[str] = None

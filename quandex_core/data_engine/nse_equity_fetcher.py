@@ -159,6 +159,10 @@ class NSEDataFetcher:
         try:
             ticker = yf.Ticker(symbol)
             end_date = datetime.now().date()
+            
+            # If no start_date provided, fetch 2 years of historical data
+            if start_date is None:
+                start_date = (end_date - timedelta(days=365*2))
 
             # yfinance handles a None start_date by fetching max history
             hist = ticker.history(
@@ -246,8 +250,15 @@ class NSEDataFetcher:
                     df = future.result()
                     if df is not None and not df.is_empty():
                         all_data.append(df)
+
                 except Exception as e:
                     logger.error(f"Future for {symbol} resulted in an error: {str(e)}")
+
+            for symbol in symbols:
+                last_date = latest_dates_map.get(symbol)
+                start_date = (last_date + timedelta(days=1)) if last_date else None
+                future = executor.submit(self._fetch_symbol_with_retry, symbol, start_date)
+                future_to_symbol[future] = symbol
 
         return pl.concat(all_data, how="vertical_relaxed") if all_data else pl.DataFrame()
             
@@ -335,7 +346,11 @@ class NSEDataFetcher:
         logger.info("Processing raw data into analytical features...")
 
         # This single, complex query will be used to build our final table directly.
-        # This is far more robust than creating many temporary tables.
+        self.conn.execute("""
+        DELETE FROM raw_equity_data 
+        WHERE date IS NULL OR symbol IS NULL
+        """)
+
         processing_query = """
         CREATE OR REPLACE TABLE processed_equity_data AS
         WITH
@@ -548,6 +563,9 @@ class NSEDataFetcher:
                 end_date = datetime.now().strftime("%Y-%m-%d")
             elif not end_date.strip().count('-') == 2:
                 end_date = datetime.strptime(end_date, "%Y-%m-%d").strftime("%Y-%m-%d")
+            # Format for DuckDB query
+            start_str = start_date.strftime("%Y-%m-%d")
+            end_str = end_date.strftime("%Y-%m-%d")    
         except ValueError:
             logger.warning(f"Invalid date format. Using default date range.")
             start_date = "2000-01-01"
@@ -663,90 +681,64 @@ class NSEDataFetcher:
             self.nifty_500_symbols = None
             logger.info("Cleanup completed")
             
-# def main():
-#     """Main function to run data operations"""
-#     #temp code to check conn
-#     try:
-#         # Test connection first
-#         test_conn = duckdb.connect(str(config.data.duckdb_path))
-#         test_conn.execute("SELECT 'DuckDB connection successful' AS status")
-#         result = test_conn.fetchone()[0]
-#         print(f"✅ {result}")
-#         test_conn.close()
-#     except Exception as e:
-#         print(f"❌ DuckDB connection failed: {str(e)}")
-#         return
-
-#     fetcher = NSEDataFetcher()
-
-#     try:
-#         # Example workflow
-#         print("1. Incremental daily update")
-#         fetcher.incremental_update()
-
-#         print("\n2. Get processed data for RELIANCE")
-#         df = fetcher.get_processed_data("RELIANCE.NS", "2024-01-01", "2024-06-01")
-#         if not df.is_empty():
-#             print(df.select(["date", "symbol", "close", "sma_50", "rsi_14"]))
-
-#         print("\n3. Update symbols list")
-#         fetcher.update_symbols_list()
-
-#         print("\n✅ Operations completed successfully")
-#     except Exception as e:
-#         print(f"❌ Error during operations: {str(e)}")
-#     finally:
-#         # Always clean up resources
-#         fetcher.cleanup()
-
-# if __name__ == "__main__":
-#     main()
 
 def main():
-    """Main function to run data operations"""
+    """Main function to run a targeted and verified data refresh."""
+    logger.info("--- Starting Definitive Data Refresh ---")
+    
     try:
-        test_conn = duckdb.connect(str(config.data.duckdb_path))
-        test_conn.execute("SELECT 'DuckDB connection successful' AS status")
-        result = test_conn.fetchone()[0]
-        print(f"✅ {result}")
-        test_conn.close()
+        # We will connect directly here to avoid any ambiguity
+        conn = duckdb.connect(str(config.data.duckdb_path))
+        print(f"DuckDB connection successful")
     except Exception as e:
-        print(f"❌ DuckDB connection failed: {str(e)}")
+        print(f"DuckDB connection failed: {str(e)}")
         return
 
+    # Instantiate the fetcher with the direct connection
     fetcher = NSEDataFetcher()
+    fetcher.conn = conn
 
+    # Define the exact symbols we need for our backtest
+    symbols_to_test = ["RELIANCE.NS", "TCS.NS"]
+    
     try:
-        # --- THE KEY CHANGE IS HERE ---
-        # We are temporarily disabling the incremental update and running a full refresh
-        # to guarantee all tables are created and populated.
+        # --- 1. Perform a guaranteed FULL refresh for these symbols ---
+        print(f"\n1. Performing a FULL data refresh for: {symbols_to_test}")
+        # This will DELETE old data for these symbols and fetch everything fresh.
+        refresh_successful = fetcher.full_refresh(symbols=symbols_to_test)
         
-        # print("1. Incremental daily update")
-        # fetcher.incremental_update()
+        if not refresh_successful:
+            raise RuntimeError("Full refresh process failed to return a success status.")
 
-        print("1. Performing a FULL data refresh for essential symbols.")
-        # Let's start with just the two symbols our notebook needs to make it fast.
-        fetcher.full_refresh(symbols=["RELIANCE.NS", "TCS.NS"])
-
-        print("\n--> Forcing database CHECKPOINT to persist all changes to disk...")
+        # --- 2. Force the database to save all changes to disk ---
+        print("\n2. Forcing database CHECKPOINT to persist all changes...")
         fetcher.conn.execute("CHECKPOINT;")
         print("--> CHECKPOINT successful.")
 
-        print("\n2. Get processed data for RELIANCE (Verification Step)")
-        df = fetcher.get_processed_data("RELIANCE.NS", "2024-01-01", "2024-06-01")
-        if not df.is_empty():
-            print("Verification successful. Found data in processed table:")
-            print(df.select(["date", "symbol", "close", "sma_50", "rsi_14"]))
-        else:
-            print("Verification FAILED. No data found in processed table after refresh.")
+        # --- 3. Verify the data exists IN THE SAME SCRIPT ---
+        print("\n3. Verifying data in 'processed_equity_data' table...")
+        
+        # We query the count of records for our specific symbols
+        verification_query = """
+        SELECT symbol, COUNT(*) as record_count
+        FROM processed_equity_data
+        WHERE symbol = ANY (?)
+        GROUP BY symbol
+        """
+        result_df = fetcher.conn.execute(verification_query, [symbols_to_test]).pl()
 
-        print("\n3. Update symbols list")
-        fetcher.update_symbols_list()
+        if result_df.is_empty():
+            raise ValueError("Verification FAILED: No records found for test symbols after refresh.")
+        
+        print("Verification successful. Data found in processed table:")
+        print(result_df)
 
-        print("\n✅ Operations completed successfully")
+        print("\n--- Data Refresh Complete and Verified ---")
+
     except Exception as e:
-        print(f"❌ Error during operations: {str(e)}")
+        logger.exception("An error occurred during the data refresh and verification process:")
     finally:
+        # Always clean up resources
         fetcher.cleanup()
 
 if __name__ == "__main__":
