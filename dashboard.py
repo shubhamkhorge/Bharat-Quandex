@@ -1,10 +1,8 @@
 """
-Bharat QuanDex - The Quant's Command Center
-Final Integrated Version
+Bharat QuanDex - Multi-Strategy Command Center
 
-This Streamlit application provides an interactive user interface for
-running backtests, screening for momentum stocks, and performing detailed
-statistical analysis on stock pairs.
+This Streamlit application provides an interactive UI for backtesting
+multiple quantitative strategies, including Pairs Arbitrage and Momentum.
 """
 import streamlit as st
 import polars as pl
@@ -16,218 +14,197 @@ import matplotlib
 import matplotlib.pyplot as plt
 
 # --- Setup & Configuration ---
-# Use a non-interactive backend for thread safety in Streamlit
-matplotlib.use("Agg") 
-
-# Add project root to path to allow imports from our package
+matplotlib.use("Agg")
 project_root = Path(__file__).parent.resolve()
 if str(project_root) not in sys.path:
     sys.path.append(str(project_root))
 
-# Import all necessary modules from our backend
 from quandex_core.config import config
 from quandex_core.strategy_blueprints.pairs_arbitrage import PairsArbitrageStrategy
-from quandex_core.strategy_blueprints.momentum_surge import run_momentum_screen
+from quandex_core.strategy_blueprints.momentum_surge import MomentumStrategy, run_momentum_screen
 from quandex_core.portfolio_logic.backtest_engine import BacktestEngine
 import pyfolio as pf
+import duckdb
 
-# --- Page Configuration (must be the first st command) ---
-st.set_page_config(
-    page_title="Bharat QuanDex",
-    page_icon="🇮🇳",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
+# --- Helper & Backend Functions ---
+def get_db_connection():
+    return duckdb.connect(str(config.data.duckdb_path), read_only=True)
 
-# --- Main App Title ---
-st.title("🇮🇳 Bharat QuanDex")
-st.caption("Quantitative Analysis & Backtesting Dashboard")
-
-# --- Cached Data & Backend Functions ---
-@st.cache_data(ttl=3600)  # Cache symbols for 1 hour
+@st.cache_data(ttl=3600)
 def get_available_symbols():
-    """Gets a list of all available stock symbols from the database."""
     try:
-        symbols = config.data.conn.execute("SELECT DISTINCT symbol FROM processed_equity_data ORDER BY symbol").pl()['symbol'].to_list()
-        # Return symbols if found, otherwise use the robust fallback list from config
+        with get_db_connection() as conn:
+            symbols = conn.execute("SELECT DISTINCT symbol FROM processed_equity_data ORDER BY symbol").pl()['symbol'].to_list()
         return symbols if symbols else config.market.fallback_symbols
-    except Exception as e:
-        logger.error(f"Error fetching symbols, using fallback: {e}")
+    except Exception: 
         return config.market.fallback_symbols
 
-@st.cache_data(max_entries=10) # Cache the last 10 backtest runs
-def run_pairs_backtest_cached(_params):
-    """Runs the pairs trading backtest and caches the result."""
-    s1, s2, start, end, win, z, cap = _params
+@st.cache_data(max_entries=10)
+def run_backtest_cached(strategy_choice, strategy_params, backtest_params):
+    """Run backtest with given config and return plotly figure and error message if any."""
     try:
-        strategy = PairsArbitrageStrategy(s1, s2, win, z)
+        # Convert frozenset parameters back to dictionaries
+        strategy_params = dict(strategy_params)
+        backtest_params = dict(backtest_params)
+        
+        # Extract parameters
+        start = backtest_params['start']
+        end = backtest_params['end']
+        cap = backtest_params['capital']
+
+        # Instantiate the correct strategy based on user choice
+        if strategy_choice == "Pairs Arbitrage":
+            # FIX: Use correct parameter names for PairsArbitrageStrategy
+            strategy = PairsArbitrageStrategy(
+                stock1_symbol=strategy_params['s1'],
+                stock2_symbol=strategy_params['s2'],
+                window_size=strategy_params['window_size'],
+                z_entry_threshold=strategy_params['z_entry_threshold']
+            )
+        elif strategy_choice == "Momentum":
+            # Ensure universe has at least 1 stock
+            universe = strategy_params['universe']
+            if len(universe) == 0:
+                return None, "Momentum strategy requires at least 1 stock in the universe"
+                
+            strategy = MomentumStrategy(
+                all_symbols=universe,
+                lookback_days=strategy_params['lookback'],
+                top_n_pct=strategy_params['top_pct'],
+                rebalance_period_days=strategy_params['rebalance_days']
+            )
+        else:
+            return None, f"Unknown strategy: {strategy_choice}"
+
         engine = BacktestEngine(strategy, start, end, cap)
         history_df = engine.run_simulation()
         
-        if history_df.is_empty():
-            return None, "No overlapping trading data found for the selected stocks and date range."
+        if history_df.is_empty(): 
+            return None, "No data for this period or symbols."
         
         returns = history_df.to_pandas().set_index('date')['portfolio_value'].pct_change().dropna()
+        if returns.empty: 
+            return None, "No trades were executed."
         
-        if returns.empty:
-            return None, "No trades were executed. Try adjusting the strategy parameters (e.g., a lower Z-Score)."
-
-        # Generate the pyfolio plot and return the figure object
         pf.create_full_tear_sheet(returns)
         fig = plt.gcf()
-        plt.close(fig) # Important to close the global plot
+        plt.close(fig)
         return fig, None
     except Exception as e:
-        logger.exception("Pairs backtest failed:")
+        logger.exception(f"{strategy_choice} backtest failed:")
         return None, f"An unexpected error occurred: {e}"
 
-# --- UI TABS ---
-tab1, tab2, tab3 = st.tabs(["📈 Pairs Arbitrage Backtester", "🔥 Momentum Screener", "🛠️ Analysis Tools"])
+# --- UI Rendering ---
+st.set_page_config(page_title="Bharat QuanDex", page_icon="🇮🇳", layout="wide")
+st.title("🇮🇳 Bharat QuanDex")
+st.caption("Multi-Strategy Quantitative Analysis Dashboard")
 
-
-# ==============================================================================
-# === TAB 1: PAIRS ARBITRAGE BACKTESTER ========================================
-# ==============================================================================
-with tab1:
-    st.header("Pairs Arbitrage Strategy Backtest")
-
-    # The sidebar is shared, but we can have specific controls per tab if needed
-    with st.sidebar:
-        st.header("Backtester Configuration")
-        all_symbols_sb = get_available_symbols()
-        s1_idx = all_symbols_sb.index("RELIANCE.NS") if "RELIANCE.NS" in all_symbols_sb else 0
-        s1 = st.selectbox("Select Stock 1", all_symbols_sb, index=s1_idx, key="s1_backtest")
+# --- Sidebar ---
+with st.sidebar:
+    st.header("Strategy Configuration")
+    
+    # --- 1. Master Strategy Selector ---
+    strategy_choice = st.selectbox("Select Strategy", ["Pairs Arbitrage", "Momentum"])
+    
+    # --- 2. Dynamic UI based on selection ---
+    if strategy_choice == "Pairs Arbitrage":
+        st.subheader("Pairs Arbitrage Settings")
+        all_symbols = get_available_symbols()
         
-        s2_options = [s for s in all_symbols_sb if s != s1]
-        s2_default = "TCS.NS" if "TCS.NS" in s2_options else s2_options[0] if s2_options else None
-        s2_idx = s2_options.index(s2_default) if s2_default else 0
-        s2 = st.selectbox("Select Stock 2", s2_options, index=s2_idx, key="s2_backtest")
-
-        start = st.date_input("Start Date", date(2022, 1, 1), key="start_backtest")
-        end = st.date_input("End Date", date(2023, 12, 31), key="end_backtest")
-        win = st.slider("Spread Window (Days)", 10, 120, 60, 5, key="win_backtest")
-        z = st.slider("Z-Score Entry", 1.0, 3.0, 2.0, 0.1, key="z_backtest")
-        cap = st.number_input("Initial Capital (INR)", 10000, 10000000, 100000, 10000, key="cap_backtest")
-    
-    if st.button("🚀 Run Pairs Backtest", type="primary", use_container_width=True):
-        params = (s1, s2, start, end, win, z, cap)
-        with st.spinner("Running Pairs Backtest... This can take a moment."):
-            fig_result, err_msg = run_pairs_backtest_cached(params)
-            # Store results in session state to persist them
-            st.session_state.pairs_results = (fig_result, err_msg)
-    
-    # Display results if they exist in the session state
-    if 'pairs_results' in st.session_state:
-        fig_result, err_msg = st.session_state.pairs_results
-        if err_msg:
-            st.error(err_msg, icon="🚨")
-        elif fig_result:
-            st.pyplot(fig_result)
-        else:
-            st.warning("Backtest ran, but something went wrong and no plot was generated.")
-
-
-# ==============================================================================
-# === TAB 2: MOMENTUM SCREENER =================================================
-# ==============================================================================
-with tab2:
-    st.header("Momentum Surge Screener")
-    st.write("Find the top stocks based on their historical rate-of-change (ROC).")
-    
-    col1, col2, col3 = st.columns([1, 1, 2])
-    lookback = col1.slider("Momentum Lookback (Trading Days)", 21, 252, 126, 21)
-    top_n = col2.number_input("Number of Stocks to Show", 5, 50, 20)
-    
-    if col3.button("📈 Run Screener", type="primary", use_container_width=True):
-        with st.spinner(f"Scanning market for top {top_n} stocks..."):
-            st.session_state.momentum_results = run_momentum_screen(lookback, top_n)
-
-    if 'momentum_results' in st.session_state:
-        results = st.session_state.momentum_results
-        if results is not None and not results.is_empty():
-            st.success(f"Found {len(results)} top momentum stocks.")
-            st.dataframe(results, use_container_width=True, hide_index=True)
-        else:
-            st.error("Screener returned no results. Please ensure the database is populated with data.", icon="🚨")
-
-
-# ==============================================================================
-# === TAB 3: ANALYSIS TOOLS (ENHANCED VERSION) =================================
-# ==============================================================================
-with tab3:
-    st.header("Cointegration & Pair Analysis Tool")
-    st.write("Perform a deep statistical analysis on a stock pair to evaluate its suitability for a mean-reversion strategy.")
-
-    all_symbols_tools = get_available_symbols()
-    tool_col1, tool_col2 = st.columns(2)
-    
-    with tool_col1:
-        s1_coint_idx = all_symbols_tools.index("ICICIBANK.NS") if "ICICIBANK.NS" in all_symbols_tools else 0
-        coint_s1 = st.selectbox("Select Stock A", all_symbols_tools, index=s1_coint_idx, key="coint_s1")
-        coint_start = st.date_input("Analysis Start Date", date(2022, 1, 1), key="coint_start")
-
-    with tool_col2:
-        s2_coint_options = [s for s in all_symbols_tools if s != coint_s1]
-        s2_coint_default = "HDFCBANK.NS" if "HDFCBANK.NS" in s2_coint_options else s2_coint_options[0] if s2_coint_options else None
-        s2_coint_idx = s2_coint_options.index(s2_coint_default) if s2_coint_default else 0
-        coint_s2 = st.selectbox("Select Stock B", s2_coint_options, index=s2_coint_idx, key="coint_s2")
-        coint_end = st.date_input("Analysis End Date", date(2023, 12, 31), key="coint_end")
-
-    if st.button("🔬 Perform Full Analysis", type="primary", use_container_width=True):
-        if not coint_s1 or not coint_s2:
-            st.warning("Please select two different stocks.")
-        else:
-            with st.spinner(f"Analyzing pair {coint_s1} / {coint_s2}..."):
-                try:
-                    # 1. Fetch Data
-                    query = "SELECT date, symbol, close FROM processed_equity_data WHERE symbol IN (?, ?) AND date BETWEEN ? AND ?"
-                    data = config.data.conn.execute(query, [coint_s1, coint_s2, coint_start, coint_end]).pl()
-                    
-                    if data.height < 60:
-                        st.error("Not enough data (< 60 days) in the selected range for a meaningful analysis.", icon="🚨")
-                    else:
-                        # 2. Pivot & Analyze
-                        df1 = data.filter(pl.col("symbol") == coint_s1).rename({"close": f"{coint_s1}_close"})
-                        df2 = data.filter(pl.col("symbol") == coint_s2).rename({"close": f"{coint_s2}_close"})
-                        pivoted_data = df1.join(df2, on="date", how="inner").sort("date")
-                        
-                        analyzer = PairsArbitrageStrategy(coint_s1, coint_s2)
-                        analyzer.perform_full_analysis(pivoted_data)
-
-                        # Store results for display
-                        st.session_state.analysis_results = {
-                            'analyzer': analyzer,
-                            'plot_data': pivoted_data
-                        }
-
-                except Exception as e:
-                    st.error(f"An error occurred during analysis: {e}")
-                    logger.exception("Cointegration check failed from dashboard:")
-
-    # Display analysis results if they exist in session state
-    if 'analysis_results' in st.session_state:
-        analyzer = st.session_state.analysis_results['analyzer']
-        plot_data = st.session_state.analysis_results['plot_data']
-
-        st.subheader("Analysis Summary")
-        summary_col1, summary_col2, summary_col3 = st.columns(3)
-        # Before formatting, we ensure we have a plain Python float.
-        # The .item() method is the safest way to extract a single value from a Polars object.
-        # We also add a check for None in case the calculation failed.
-        correlation_value = analyzer.correlation.item() if hasattr(analyzer.correlation, 'item') else analyzer.correlation
+        # Find safe indices for defaults
+        reliance_index = all_symbols.index("RELIANCE.NS") if "RELIANCE.NS" in all_symbols else 0
+        tcs_index = all_symbols.index("TCS.NS") if "TCS.NS" in all_symbols else 0
         
-        summary_col1.metric("Cointegration P-Value", f"{analyzer.cointegration_p_value:.4f}")
-        summary_col2.metric("Price Correlation", f"{correlation_value:.4f}" if correlation_value is not None else "N/A")
-        summary_col3.metric("Reversion Half-Life", f"{analyzer.half_life:.1f} days" if analyzer.half_life else "N/A")
+        s1 = st.selectbox("Stock 1", all_symbols, index=reliance_index)
+        s2_options = [s for s in all_symbols if s != s1]
+        
+        # Find safe index for TCS in filtered list
+        tcs_safe_index = s2_options.index("TCS.NS") if "TCS.NS" in s2_options else 0
+        s2 = st.selectbox("Stock 2", s2_options, index=tcs_safe_index)
+        
+        win = st.slider("Spread Window (Days)", 10, 120, 60)
+        z = st.slider("Z-Score Entry", 1.0, 3.0, 2.0, 0.1)
+        
+        strategy_params = {'s1': s1, 's2': s2, 'window_size': win, 'z_entry_threshold': z}
 
-        if analyzer.is_cointegrated:
-            st.success(f"Conclusion: The pair IS LIKELY cointegrated (p-value < 0.05).", icon="✅")
-        else:
-            st.warning(f"Conclusion: The pair is NOT likely cointegrated (p-value > 0.05).", icon="⚠️")
-
-        st.subheader("Normalized Price Series")
-        plot_df = plot_data.with_columns(
-            (pl.col(f"{analyzer.stock1}_close") / plot_data[f'{analyzer.stock1}_close'][0]).alias("Stock A (Normalized)"),
-            (pl.col(f"{analyzer.stock2}_close") / plot_data[f'{analyzer.stock2}_close'][0]).alias("Stock B (Normalized)")
+    elif strategy_choice == "Momentum":
+        st.subheader("Momentum Settings")
+        available_symbols = get_available_symbols()
+        
+        # Create filtered default list - removed LT.NS which was causing errors
+        default_universe = [
+            "RELIANCE.NS", "TCS.NS", "INFY.NS", "HDFCBANK.NS", 
+            "ICICIBANK.NS", "ITC.NS", "HINDUNILVR.NS", "SBIN.NS", "AXISBANK.NS"
+        ]
+        valid_defaults = [s for s in default_universe if s in available_symbols]
+        
+        momentum_universe = st.multiselect(
+            "Select Stock Universe",
+            options=available_symbols,
+            default=valid_defaults,
+            key="momentum_universe"  # Unique key to avoid widget conflicts
         )
-        st.line_chart(plot_df.to_pandas().set_index("date")[["Stock A (Normalized)", "Stock B (Normalized)"]])
+        
+        # Fallback to valid defaults if nothing selected
+        if not momentum_universe:
+            st.warning("No stocks selected! Using default universe.")
+            momentum_universe = valid_defaults
+            
+        lookback = st.slider("Momentum Lookback (Days)", 21, 252, 126)
+        top_pct = st.slider("Top % of Universe to Buy", 0.1, 0.5, 0.2, 0.05)
+        rebal = st.slider("Rebalance Period (Trading Days)", 5, 63, 21)
+
+        # FIX: Convert list to tuple for hashability
+        strategy_params = {
+            'universe': tuple(momentum_universe),  # Convert list to tuple
+            'lookback': lookback, 
+            'top_pct': top_pct, 
+            'rebalance_days': rebal
+        }
+
+    st.subheader("General Settings")
+    start = st.date_input("Start Date", date(2022, 1, 1))
+    end = st.date_input("End Date", date(2023, 12, 31))
+    cap = st.number_input("Initial Capital (INR)", 10000, 10000000, 100000, 10000)
+    
+    backtest_params = {
+        'start': start, 
+        'end': end, 
+        'capital': cap
+    }
+    
+    run_button = st.button("🚀 Run Backtest", type="primary", use_container_width=True)
+
+# --- Main Content Area ---
+st.header("Backtest Performance")
+
+if run_button:
+    # Create immutable keys for caching
+    # FIX: Wrap in tuple() to handle date objects
+    strategy_key = frozenset(tuple(strategy_params.items()))
+    backtest_key = frozenset(tuple(backtest_params.items()))
+    
+    with st.spinner(f"Running {strategy_choice} backtest..."):
+        try:
+            fig_result, err_msg = run_backtest_cached(
+                strategy_choice,
+                strategy_key,
+                backtest_key
+            )
+            st.session_state.results = (fig_result, err_msg)
+        except Exception as e:
+            st.error(f"Backtest initialization failed: {str(e)}", icon="🚨")
+            st.session_state.results = (None, str(e))
+
+# Display results if they exist in the session state
+if 'results' in st.session_state:
+    fig_result, err_msg = st.session_state.results
+    if err_msg:
+        st.error(err_msg, icon="🚨")
+    elif fig_result:
+        st.pyplot(fig_result)
+        st.success("Backtest analysis complete!", icon="✅")
+    else:
+        st.warning("Backtest ran, but no results were generated.")
+else:
+    st.info("Configure your strategy in the sidebar and click 'Run Backtest'.", icon="👈")
