@@ -139,7 +139,7 @@ if __name__ == '__main__':
     strategy = PairsArbitrageStrategy('RELIANCE', 'TCS')
     
     # NEW: Call the analysis method first
-    strategy.perform_full_analysis(mock_df)
+    strategy.perform_full_analysis(mock_df) # type: ignore
     
     print(f"\nAnalysis Results:")
     print(f"  - Is Cointegrated? {'Yes' if strategy.is_cointegrated else 'No'}")
@@ -147,6 +147,6 @@ if __name__ == '__main__':
     print(f"  - Correlation: {strategy.correlation:.4f}")
     print(f"  - Half-life: {strategy.half_life:.2f} days" if strategy.half_life else "  - Half-life: N/A")
 
-    signals_df = strategy.generate_signals(mock_df)
+    signals_df = strategy.generate_signals(mock_df) # type: ignore
     print("\n--- Generated Signals ---")
     print(signals_df.tail(5))

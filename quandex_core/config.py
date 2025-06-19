@@ -117,9 +117,9 @@ class BacktestConfig:
     """Backtesting configuration"""
     initial_capital: float = 100000.0  # 1 Lakh INR
     start_date: str = "2020-01-01"
-    end_date: str = "2024-12-31"
+    end_date: str = "2025-06-18"
     benchmark: str = "^NSEI"
-    rebalance_frequency: str = "monthly"  # daily, weekly, monthly, quarterly
+    rebalance_frequency: str = "daily"  # daily, weekly, monthly, quarterly
     
     # Risk management
     max_position_size: float = 0.05  # 5% of portfolio
@@ -152,7 +152,7 @@ class DashboardConfig:
     """Dashboard configuration"""
     host: str = "localhost"
     port: int = 8501
-    theme: str = "dark"
+    theme: str = "light"
     auto_refresh: bool = True
     refresh_interval: int = 300  # 5 minutes
 
