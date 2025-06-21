@@ -1,0 +1,307 @@
+2025-06-21 14:53:39.977 | INFO     | __main__:<module>:57 - Logging system initialized successfully
+2025-06-21 14:53:39.977 | INFO     | __main__:<module>:58 - Log files stored in: D:\bharat_quandex\logs
+2025-06-21 14:53:39.984 | INFO     | __main__:main:252 - 🚀 Starting FII/DII tracker
+2025-06-21 14:53:39.985 | ERROR    | __main__:__init__:95 - Initialization failed: name 'config' is not defined
+2025-06-21 15:07:21.351 | INFO     | __main__:<module>:58 - Logging system initialized successfully
+2025-06-21 15:07:21.352 | INFO     | __main__:<module>:59 - Log files stored in: D:\bharat_quandex\logs
+2025-06-21 15:07:21.353 | INFO     | __main__:main:253 - 🚀 Starting FII/DII tracker
+2025-06-21 15:07:21.353 | ERROR    | __main__:__init__:96 - Initialization failed: 'Config' object has no attribute 'scraping'
+2025-06-21 15:11:09.092 | INFO     | __main__:<module>:58 - Logging system initialized successfully
+2025-06-21 15:11:09.092 | INFO     | __main__:<module>:59 - Log files stored in: D:\bharat_quandex\logs
+2025-06-21 15:11:09.094 | INFO     | __main__:main:253 - 🚀 Starting FII/DII tracker
+2025-06-21 15:11:09.094 | ERROR    | __main__:__init__:96 - Initialization failed: 'Config' object has no attribute 'scraping'
+2025-06-21 15:11:16.914 | INFO     | __main__:<module>:58 - Logging system initialized successfully
+2025-06-21 15:11:16.915 | INFO     | __main__:<module>:59 - Log files stored in: D:\bharat_quandex\logs
+2025-06-21 15:11:16.917 | INFO     | __main__:main:253 - 🚀 Starting FII/DII tracker
+2025-06-21 15:11:16.918 | ERROR    | __main__:__init__:96 - Initialization failed: 'Config' object has no attribute 'scraping'
+2025-06-21 15:25:17.197 | INFO     | __main__:<module>:59 - Logging system initialized successfully
+2025-06-21 15:25:17.197 | INFO     | __main__:<module>:60 - Log files stored in: D:\bharat_quandex\logs
+2025-06-21 15:25:17.198 | INFO     | __main__:main:381 - 🚀 Starting FII/DII tracker
+2025-06-21 15:25:17.199 | INFO     | __main__:__init__:91 - FII/DII scraper initialized with DuckDB: D:\bharat_quandex\data_vault\market_boards\quandex.duckdb
+2025-06-21 15:25:17.199 | DEBUG    | __main__:scrape_with_playwright:104 - Using user agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36
+2025-06-21 15:25:21.665 | ERROR    | __main__:scrape_with_playwright:174 - Critical error: object NoneType can't be used in 'await' expression
+2025-06-21 15:25:21.666 | ERROR    | __main__:scrape_with_playwright:177 - Playwright scraping failed after 3 attempts
+2025-06-21 15:25:21.666 | INFO     | __main__:scrape:314 - Playwright failed, trying requests fallback
+2025-06-21 15:25:22.151 | ERROR    | __main__:scrape_with_requests:218 - Requests fallback failed: 404 Client Error: Not Found for url: https://www.nseindia.com/market-data/fii-dii-activity
+2025-06-21 15:25:22.152 | ERROR    | __main__:scrape:319 - All scraping methods failed
+2025-06-21 15:25:22.152 | ERROR    | __main__:main:391 - Scraping failed, no data to persist
+2025-06-21 15:25:22.153 | INFO     | __main__:main:393 - ✅ Tracker run completed
+2025-06-21 15:28:54.408 | INFO     | __main__:<module>:59 - Logging system initialized successfully
+2025-06-21 15:28:54.408 | INFO     | __main__:<module>:60 - Log files stored in: D:\bharat_quandex\logs
+2025-06-21 15:28:54.410 | INFO     | __main__:main:491 - 🚀 Starting FII/DII tracker
+2025-06-21 15:28:54.410 | INFO     | __main__:__init__:107 - FII/DII scraper initialized with DuckDB: D:\bharat_quandex\data_vault\market_boards\quandex.duckdb
+2025-06-21 15:28:54.411 | DEBUG    | __main__:scrape_with_playwright:120 - Using user agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36
+2025-06-21 15:28:58.216 | WARNING  | __main__:scrape_with_playwright:187 - Attempt 1/3 failed. Retrying in 4.8s: Page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://www.nseindia.com/get-quotes/equity?symbol=NIFTY%2050
+Call log:
+  - navigating to "https://www.nseindia.com/get-quotes/equity?symbol=NIFTY%2050", waiting until "networkidle"
+
+2025-06-21 15:29:02.976 | DEBUG    | __main__:scrape_with_playwright:120 - Using user agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15
+2025-06-21 15:29:04.020 | WARNING  | __main__:scrape_with_playwright:187 - Attempt 2/3 failed. Retrying in 8.8s: Page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://www.nseindia.com/get-quotes/equity?symbol=NIFTY%2050
+Call log:
+  - navigating to "https://www.nseindia.com/get-quotes/equity?symbol=NIFTY%2050", waiting until "networkidle"
+
+2025-06-21 15:29:12.836 | DEBUG    | __main__:scrape_with_playwright:120 - Using user agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15
+2025-06-21 15:29:13.909 | WARNING  | __main__:scrape_with_playwright:187 - Attempt 3/3 failed. Retrying in 17.0s: Page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://www.nseindia.com/get-quotes/equity?symbol=NIFTY%2050
+Call log:
+  - navigating to "https://www.nseindia.com/get-quotes/equity?symbol=NIFTY%2050", waiting until "networkidle"
+
+2025-06-21 15:29:30.866 | ERROR    | __main__:scrape_with_playwright:195 - Playwright scraping failed after 3 attempts
+2025-06-21 15:29:30.866 | INFO     | __main__:scrape:424 - Playwright failed, trying requests fallback
+2025-06-21 15:29:31.668 | INFO     | __main__:scrape_with_requests:221 - Successfully established session with NSE
+2025-06-21 15:29:31.668 | INFO     | __main__:scrape_with_requests:228 - Trying URL: https://www.nseindia.com/market-data/fii-dii-activity
+2025-06-21 15:29:31.990 | DEBUG    | __main__:scrape_with_requests:261 - URL https://www.nseindia.com/market-data/fii-dii-activity failed: 404 Client Error: Not Found for url: https://www.nseindia.com/market-data/fii-dii-activity
+2025-06-21 15:29:31.990 | INFO     | __main__:scrape_with_requests:228 - Trying URL: https://www.nseindia.com/get-quotes/equity?symbol=NIFTY%2050
+2025-06-21 15:29:32.269 | INFO     | __main__:scrape_with_requests:238 - Not JSON data from: https://www.nseindia.com/get-quotes/equity?symbol=NIFTY%2050, trying HTML parsing
+2025-06-21 15:29:32.428 | SUCCESS  | __main__:scrape_with_requests:257 - Scraped 2 rows from: https://www.nseindia.com/get-quotes/equity?symbol=NIFTY%2050
+2025-06-21 15:29:32.443 | ERROR    | __main__:_process_table_data:413 - Data processing failed: could not create a new DataFrame: column with name 'VOLUME(Shares/Contracts)' has more than one occurrence
+Traceback (most recent call last):
+
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+
+  File "D:\bharat_quandex\quandex_core\market_insights\fii_dii_tracker.py", line 506, in <module>
+    asyncio.run(main())
+    │       │   └ <function main at 0x000001E07CBF7880>
+    │       └ <function run at 0x000001E077FFDBC0>
+    └ <module 'asyncio' from 'C:\\Users\\shubh\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\asyncio\\__init__.py'>
+
+  File "C:\Users\shubh\AppData\Local\Programs\Python\Python313\Lib\asyncio\runners.py", line 195, in run
+    return runner.run(main)
+           │      │   └ <coroutine object main at 0x000001E07CBEC110>
+           │      └ <function Runner.run at 0x000001E07A3B2B60>
+           └ <asyncio.runners.Runner object at 0x000001E07CBB5550>
+  File "C:\Users\shubh\AppData\Local\Programs\Python\Python313\Lib\asyncio\runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           │    │     │                  └ <Task pending name='Task-1' coro=<main() running at D:\bharat_quandex\quandex_core\market_insights\fii_dii_tracker.py:495> cb...
+           │    │     └ <function BaseEventLoop.run_until_complete at 0x000001E07A3B0720>
+           │    └ <ProactorEventLoop running=True closed=False debug=False>
+           └ <asyncio.runners.Runner object at 0x000001E07CBB5550>
+  File "C:\Users\shubh\AppData\Local\Programs\Python\Python313\Lib\asyncio\base_events.py", line 706, in run_until_complete
+    self.run_forever()
+    │    └ <function BaseEventLoop.run_forever at 0x000001E07A3B0680>
+    └ <ProactorEventLoop running=True closed=False debug=False>
+  File "C:\Users\shubh\AppData\Local\Programs\Python\Python313\Lib\asyncio\base_events.py", line 677, in run_forever
+    self._run_once()
+    │    └ <function BaseEventLoop._run_once at 0x000001E07A3B2480>
+    └ <ProactorEventLoop running=True closed=False debug=False>
+  File "C:\Users\shubh\AppData\Local\Programs\Python\Python313\Lib\asyncio\base_events.py", line 2034, in _run_once
+    handle._run()
+    │      └ <function Handle._run at 0x000001E07A2D9260>
+    └ <Handle Task.task_wakeup()>
+  File "C:\Users\shubh\AppData\Local\Programs\Python\Python313\Lib\asyncio\events.py", line 89, in _run
+    self._context.run(self._callback, *self._args)
+    │    │            │    │           │    └ <member '_args' of 'Handle' objects>
+    │    │            │    │           └ <Handle Task.task_wakeup()>
+    │    │            │    └ <member '_callback' of 'Handle' objects>
+    │    │            └ <Handle Task.task_wakeup()>
+    │    └ <member '_context' of 'Handle' objects>
+    └ <Handle Task.task_wakeup()>
+
+  File "D:\bharat_quandex\quandex_core\market_insights\fii_dii_tracker.py", line 495, in main
+    data = await scraper.scrape()
+                 │       └ <function NSE_FII_DII_Scraper.scrape at 0x000001E07CBF7420>
+                 └ <__main__.NSE_FII_DII_Scraper object at 0x000001E07CBB5A90>
+
+  File "D:\bharat_quandex\quandex_core\market_insights\fii_dii_tracker.py", line 425, in scrape
+    data = await self.scrape_with_requests()
+                 │    └ <function NSE_FII_DII_Scraper.scrape_with_requests at 0x000001E07CBF76A0>
+                 └ <__main__.NSE_FII_DII_Scraper object at 0x000001E07CBB5A90>
+
+  File "D:\bharat_quandex\quandex_core\market_insights\fii_dii_tracker.py", line 258, in scrape_with_requests
+    return self._process_table_data(table_data)
+           │    │                   └ [['PRODUCTS', 'Today', 'Previous Trade Day'], ['VOLUME(Shares/Contracts)', 'VALUE*(₹ Crores)', 'OPEN INTEREST(Contracts)', 'N...
+           │    └ <function NSE_FII_DII_Scraper._process_table_data at 0x000001E07CBF74C0>
+           └ <__main__.NSE_FII_DII_Scraper object at 0x000001E07CBB5A90>
+
+> File "D:\bharat_quandex\quandex_core\market_insights\fii_dii_tracker.py", line 353, in _process_table_data
+    df = pl.DataFrame(data_rows, schema=header_row)
+         │  │         │                 └ ['VOLUME(Shares/Contracts)', 'VALUE*(₹ Crores)', 'OPEN INTEREST(Contracts)', 'No. of Orders#', 'No. of Trades', 'Average Trad...
+         │  │         └ []
+         │  └ <class 'polars.dataframe.frame.DataFrame'>
+         └ <module 'polars' from 'D:\\bharat_quandex\\.venv\\Lib\\site-packages\\polars\\__init__.py'>
+
+  File "D:\bharat_quandex\.venv\Lib\site-packages\polars\dataframe\frame.py", line 385, in __init__
+    self._df = sequence_to_pydf(
+    │          └ <function sequence_to_pydf at 0x000001E07A736C00>
+    └ <unprintable DataFrame object>
+  File "D:\bharat_quandex\.venv\Lib\site-packages\polars\_utils\construction\dataframe.py", line 459, in sequence_to_pydf
+    return dict_to_pydf({}, schema=schema, schema_overrides=schema_overrides)
+           │                       │                        └ None
+           │                       └ ['VOLUME(Shares/Contracts)', 'VALUE*(₹ Crores)', 'OPEN INTEREST(Contracts)', 'No. of Orders#', 'No. of Trades', 'Average Trad...
+           └ <function dict_to_pydf at 0x000001E07A7359E0>
+  File "D:\bharat_quandex\.venv\Lib\site-packages\polars\_utils\construction\dataframe.py", line 169, in dict_to_pydf
+    pydf = PyDataFrame(data_series)
+           │           └ [<builtins.PySeries object at 0x000001E07B30DA10>, <builtins.PySeries object at 0x000001E07B3C91A0>, <builtins.PySeries objec...
+           └ <class 'builtins.PyDataFrame'>
+
+polars.exceptions.DuplicateError: could not create a new DataFrame: column with name 'VOLUME(Shares/Contracts)' has more than one occurrence
+2025-06-21 15:29:32.529 | ERROR    | __main__:scrape:429 - All scraping methods failed
+2025-06-21 15:29:32.530 | ERROR    | __main__:main:501 - Scraping failed, no data to persist
+2025-06-21 15:29:32.530 | INFO     | __main__:main:503 - ✅ Tracker run completed
+2025-06-21 16:08:30.626 | INFO     | __main__:<module>:74 - Logging system initialized
+2025-06-21 16:08:30.626 | INFO     | __main__:<module>:75 - DuckDB path: D:\bharat_quandex\data_vault\market_boards\quandex.duckdb
+2025-06-21 16:08:30.629 | INFO     | __main__:main:465 - 🚀 Starting FII/DII tracker
+2025-06-21 16:08:30.630 | INFO     | __main__:__init__:117 - FII/DII scraper initialized
+2025-06-21 16:08:30.630 | INFO     | __main__:scrape:388 - Trying official API...
+2025-06-21 16:08:31.358 | INFO     | __main__:scrape_with_api:134 - NSE session established
+2025-06-21 16:08:31.431 | SUCCESS  | __main__:scrape_with_api:144 - Fetched FII/DII data from API
+2025-06-21 16:08:31.431 | ERROR    | __main__:_process_api_data:187 - API data processing failed: 'list' object has no attribute 'get'
+2025-06-21 16:08:31.433 | INFO     | __main__:scrape:394 - API failed, trying Playwright...
+2025-06-21 16:08:31.434 | DEBUG    | __main__:scrape_with_playwright:199 - Using chromium with UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWeb...
+2025-06-21 16:08:36.232 | WARNING  | __main__:scrape_with_playwright:245 - chromium attempt failed: Page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://www.nseindia.com/market-data/fii-dii-activity
+Ca
+2025-06-21 16:08:38.246 | DEBUG    | __main__:scrape_with_playwright:199 - Using firefox with UA: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Ap...
+2025-06-21 16:08:39.594 | WARNING  | __main__:scrape_with_playwright:245 - firefox attempt failed: BrowserType.launch: Executable doesn't exist at C:\Users\shubh\AppData\Local\ms-playwright\firefox-1
+2025-06-21 16:08:41.611 | INFO     | __main__:scrape_with_playwright:252 - Retry 1/3 in 4.0s
+2025-06-21 16:08:45.623 | DEBUG    | __main__:scrape_with_playwright:199 - Using chromium with UA: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36...
+2025-06-21 16:08:47.794 | WARNING  | __main__:scrape_with_playwright:245 - chromium attempt failed: Page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://www.nseindia.com/market-data/fii-dii-activity
+Ca
+2025-06-21 16:08:49.799 | DEBUG    | __main__:scrape_with_playwright:199 - Using firefox with UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWeb...
+2025-06-21 16:08:50.954 | WARNING  | __main__:scrape_with_playwright:245 - firefox attempt failed: BrowserType.launch: Executable doesn't exist at C:\Users\shubh\AppData\Local\ms-playwright\firefox-1
+2025-06-21 16:08:52.969 | INFO     | __main__:scrape_with_playwright:252 - Retry 2/3 in 8.0s
+2025-06-21 16:09:00.972 | DEBUG    | __main__:scrape_with_playwright:199 - Using chromium with UA: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36...
+2025-06-21 16:09:03.036 | WARNING  | __main__:scrape_with_playwright:245 - chromium attempt failed: Page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://www.nseindia.com/market-data/fii-dii-activity
+Ca
+2025-06-21 16:09:05.043 | DEBUG    | __main__:scrape_with_playwright:199 - Using firefox with UA: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36...
+2025-06-21 16:09:06.316 | WARNING  | __main__:scrape_with_playwright:245 - firefox attempt failed: BrowserType.launch: Executable doesn't exist at C:\Users\shubh\AppData\Local\ms-playwright\firefox-1
+2025-06-21 16:09:08.326 | INFO     | __main__:scrape_with_playwright:252 - Retry 3/3 in 16.0s
+2025-06-21 16:09:24.335 | ERROR    | __main__:scrape_with_playwright:255 - Playwright scraping failed after all attempts
+2025-06-21 16:09:24.336 | ERROR    | __main__:scrape:400 - All scraping methods failed, using mock data
+2025-06-21 16:09:24.398 | WARNING  | __main__:_generate_mock_data:378 - Generated 4 days of mock data
+2025-06-21 16:09:30.800 | SUCCESS  | __main__:update_database:456 - Updated 4 records
+2025-06-21 16:09:30.801 | INFO     | __main__:main:481 - ✅ Tracker completed in 60.17 seconds
+2025-06-21 16:18:47.545 | INFO     | __main__:<module>:67 - Logging system initialized
+2025-06-21 16:18:47.546 | INFO     | __main__:<module>:68 - DuckDB path: D:\bharat_quandex\data_vault\market_boards\quandex.duckdb
+2025-06-21 16:18:47.554 | INFO     | __main__:main:473 - 🚀 Starting FII/DII tracker
+2025-06-21 16:18:47.555 | INFO     | __main__:__init__:113 - FII/DII scraper initialized
+2025-06-21 16:18:47.556 | INFO     | __main__:scrape:396 - Trying official API...
+2025-06-21 16:18:48.345 | INFO     | __main__:scrape_with_api:130 - NSE session established
+2025-06-21 16:18:48.440 | SUCCESS  | __main__:scrape_with_api:140 - Fetched FII/DII data from API
+2025-06-21 16:18:48.506 | INFO     | __main__:_process_api_data:188 - Processed 0 records from API
+2025-06-21 16:18:48.508 | INFO     | __main__:scrape:402 - API failed, trying Playwright...
+2025-06-21 16:18:48.509 | DEBUG    | __main__:scrape_with_playwright:203 - Using chromium with UA: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36...
+2025-06-21 16:18:53.635 | WARNING  | __main__:scrape_with_playwright:251 - chromium attempt failed: Page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://www.nseindia.com/market-data/fii-dii-activity
+Ca
+2025-06-21 16:18:55.639 | INFO     | __main__:scrape_with_playwright:258 - Retry 1/3 in 4.0s
+2025-06-21 16:18:59.653 | DEBUG    | __main__:scrape_with_playwright:203 - Using chromium with UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWeb...
+2025-06-21 16:19:01.808 | WARNING  | __main__:scrape_with_playwright:251 - chromium attempt failed: Page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://www.nseindia.com/market-data/fii-dii-activity
+Ca
+2025-06-21 16:19:03.815 | INFO     | __main__:scrape_with_playwright:258 - Retry 2/3 in 8.0s
+2025-06-21 16:19:11.831 | DEBUG    | __main__:scrape_with_playwright:203 - Using chromium with UA: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWeb...
+2025-06-21 16:19:13.918 | WARNING  | __main__:scrape_with_playwright:251 - chromium attempt failed: Page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://www.nseindia.com/market-data/fii-dii-activity
+Ca
+2025-06-21 16:19:15.923 | INFO     | __main__:scrape_with_playwright:258 - Retry 3/3 in 16.0s
+2025-06-21 16:19:31.928 | ERROR    | __main__:scrape_with_playwright:261 - Playwright scraping failed after all attempts
+2025-06-21 16:19:31.929 | ERROR    | __main__:scrape:408 - All scraping methods failed, using mock data
+2025-06-21 16:19:31.975 | WARNING  | __main__:_generate_mock_data:386 - Generated 4 days of mock data
+2025-06-21 16:19:34.295 | SUCCESS  | __main__:update_database:464 - Updated 4 records
+2025-06-21 16:19:34.298 | INFO     | __main__:main:489 - ✅ Tracker completed in 46.74 seconds
+2025-06-21 16:32:06.421 | INFO     | __main__:<module>:68 - Logging system initialized
+2025-06-21 16:32:06.422 | INFO     | __main__:<module>:69 - DuckDB path: D:\bharat_quandex\data_vault\market_boards\quandex.duckdb
+2025-06-21 16:32:06.425 | INFO     | __main__:main:547 - 🚀 Starting FII/DII tracker
+2025-06-21 16:32:06.425 | INFO     | __main__:__init__:115 - FII/DII scraper initialized
+2025-06-21 16:32:06.426 | INFO     | __main__:scrape:470 - Trying official API...
+2025-06-21 16:32:06.427 | DEBUG    | __main__:scrape_with_api:129 - Request headers: {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36', 'Accept-Encoding': 'gzip, deflate, br', 'Accept': 'application/json, text/plain, */*', 'Connection': 'keep-alive', 'Accept-Language': 'en-US,en;q=0.9', 'Referer': 'https://www.nseindia.com/', 'Sec-Fetch-Dest': 'empty', 'Sec-Fetch-Mode': 'cors', 'Sec-Fetch-Site': 'same-origin', 'X-Requested-With': 'XMLHttpRequest'}
+2025-06-21 16:32:07.206 | DEBUG    | __main__:scrape_with_api:134 - Session cookies: {'_abck': '9BF2B8131FDB471ACAD5F7533B594B3B~-1~YAAQxFI2F4XM9IaXAQAAKBgnkg4XenUe0vTp03BLZJ3cUKTYDPYcpwRlfkxgrro6lRKsH2kVHToKy4W22y0cK5qYBJf70l2xWJYVZS57nkZ0v9qJgl20S9a5JjY2caLhbVEzbrV54NV3LLZN15Mj7wAou4lfvzUHU60igzmF+ooXgrpCEpUPTa/ev6A9947y8x3Wwt1w58l1U7bjd+2dmQXL0EzMNTYyAFHq4zjowopW1DltYlixvmFsvecTC9QO+fwXdsowexuUUEmhMcZJSZtLvdiZ3rWpo302y+7Wobul4TgHr7tl2YP/t5z3/DyhaYQbWRwJwUJJE0d/CTbExWlQDK0j98KI0VXazMcRWWEEGxQJODuNrPSK8gTFsuL1rP5bN6e4qX7YWUzHMLkJ8qqiZ3j9YXHnGnUQ5SsFGNBsqLF7yMrxnIw3+OoAYks0xRD9oMXy~-1~-1~-1', 'ak_bmsc': '297A6222FEAB59F4C8B2FB1F0942DB6F~000000000000000000000000000000~YAAQxFI2F4bM9IaXAQAAKBgnkhzvNyKN/sOn4fLkMSfhsMo3FHn5J2W6NZgEQ2iogcYQ4EVVFs83bjldbC/h970SKCKvb2TwOybPdutoAwO6n+d7T/FNmyHfk5I60RtpuDm6VHA0N5TtusB7FkhBWWIA6zyc8T1foU00rEOtukx85KikdkQKrnki5F2dY/bPJNqD9OkDvz6Uo/tBDdq/45nzZRGfExCUi/yklNUm9XzhgcUojbyukYFIb072OzfGyA6oooym0posBb0jEqgRJTaKS4DVJ7qLShMRpWY1nlnKkWGAGpLzS7kNlMgGaYJCAakn7r9LgW3HAuI51ZkX3bSrayASH6ssvZnkaokEB0aUXy1wKyx48F9wifybXeuA', 'bm_sz': '3C860C37ABF40F2DD1D52C85419B829E~YAAQxFI2F4jM9IaXAQAAKBgnkhz4TxqCygCyk/f3HD1WorIG7hQBsbxj6wCC9KNTxJPveEFmUYYCRElvCS+bcQ0+iZbpCF3+2DxgXh6p/1T9uuZVa3oKEXlwwR8QV0ZVN5n5fBIhKkLz+BkFg9YiX6kqu+zDHY5zRqHVBC8Hs8yVU7dKz++hg/XSu8u7ULDvXospOcZwsuNGBQowCB1ebfQYRbV4CuP7ZfAnJX1mAnihmgDw1GooYWA4tFs8HPPIhBlg3ipUh51Nx6CSEE72ujuw7u0K/e8wuDroZj2A5fdNbvUDROLtu7Q73UjXPWCWW0gWwnFOVJU63fkaFFmcZ7nYG1lqChjLhRDDXtVdaV0=~3748150~4403255'}
+2025-06-21 16:32:07.207 | INFO     | __main__:scrape_with_api:136 - NSE session established
+2025-06-21 16:32:07.275 | DEBUG    | __main__:scrape_with_api:144 - API status: 200
+2025-06-21 16:32:07.275 | DEBUG    | __main__:scrape_with_api:145 - Response headers: {'Server': 'Apache', 'Content-Security-Policy': "frame-ancestors self, default-src 'self'; font-src 'self' https://*.googleapis.com https://*.gstatic.com https://*.youtube.com https://*.bootstrapcdn.com https://*.highcharts.com https://*.nse.co.in https://*.nseindia.com; img-src 'self' data: https://www.google-analytics.com https://analytics.google.com https://*.youtube.com https://*.nse.co.in https://*.nseindia.com https://www.google.co.in https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://*.googleapis.com https://*.nseindia.com; script-src 'self' 'self' 'unsafe-inline' 'unsafe-eval' https://*.youtube.com https://*.gstatic.com https://www.google.com/ https://*.googletagmanager.com https://*.highcharts.com https://*.go-mpulse.net https://*.doubleclick.net https://www.google-analytics.com https://*.g.doubleclick.net/ https://analytics.google.com/ https://*.nse.co.in https://*.nseindia.com https://unpkg.com; connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://www.google.com/ https://*.nseindia.com wss://*.nseindia.com https://c.go-mpulse.net https://stats.g.doubleclick.net https://*.akstat.io/ https://*.akamaihd.net https://*.highcharts.com; frame-src 'self' https://www.googletagmanager.com https://www.google.com/ https://*.nseindia.com https://td.doubleclick.net https://*.youtube.com; frame-ancestors 'self'", 'X-DNS-Prefetch-Control': 'off', 'X-Frame-Options': 'SAMEORIGIN', 'X-Download-Options': 'noopen', 'X-Content-Type-Options': 'nosniff', 'X-XSS-Protection': '1; mode=block', 'Referrer-Policy': 'strict-origin-when-cross-origin', 'Access-Control-Allow-Origin': 'beta.nseindia.com, nseindia.com', 'Access-Control-Allow-Methods': 'GET,POST', 'Access-Control-Allow-Headers': 'Content-Type', 'Content-Type': 'application/json; charset=utf-8', 'Content-Encoding': 'br', 'Content-Length': '119', 'Date': 'Sat, 21 Jun 2025 11:02:05 GMT', 'Connection': 'keep-alive', 'Server-Timing': 'cdn-cache; desc=HIT, edge; dur=1, ak_p; desc="1750503725189_389436100_79045218_258_16278_33_0_-";dur=1', 'Akamai-GRN': '0.c4523617.1750503725.4b62262', 'Strict-Transport-Security': 'max-age=31536000 ; includeSubDomains ; preload', 'Set-Cookie': 'bm_sv=D05D795F3F479B44B8485C675DD4E429~YAAQxFI2F4vM9IaXAQAAlxgnkhzrbmKUZnwxef2Zpnz4Gl2i0qrWI8YucNIMt2d2fmJmOPcavA8CnE79ZyVdVyyTmcWaleqwhKSH/wJnmscqyvO0O+r3nufuXXIQ3aYAwqN+zvvxADmOBu5BQ0blnS+wYU5r7FD8cF3VLggwSzVMbhwwn12pLtJoLYp5njwEj/0AVjCJsvxZNF5ckx/kYnuaGT2zl8WfeComU7EFAEi2JDzhdRJ8qwIzGsUFguIZ8VI=~1; Domain=.nseindia.com; Path=/; Expires=Sat, 21 Jun 2025 13:02:05 GMT; Max-Age=7200; Secure'}
+2025-06-21 16:32:07.275 | SUCCESS  | __main__:scrape_with_api:156 - Fetched FII/DII data from API
+2025-06-21 16:32:07.276 | DEBUG    | __main__:scrape_with_api:159 - API response snippet: [{'category': 'DII **', 'date': '20-Jun-2025', 'buyValue': '24208.65', 'sellValue': '27258.53', 'netValue': '-3049.88'}, {'category': 'FII/FPI *', 'date': '20-Jun-2025', 'buyValue': '52411.51', 'sellValue': '44470.81', 'netValue': '7940.7'}]...
+2025-06-21 16:32:07.277 | DEBUG    | __main__:_process_api_data:190 - Raw API columns: ['category', 'date', 'buyValue', 'sellValue', 'netValue']
+2025-06-21 16:32:07.367 | INFO     | __main__:_process_api_data:250 - Processed 2 records from API
+2025-06-21 16:32:07.666 | ERROR    | __main__:update_database:542 - Database update failed: Binder Error: table institutional_flows has 7 columns but 1 values were supplied
+2025-06-21 16:32:07.667 | INFO     | __main__:main:563 - ✅ Tracker completed in 1.24 seconds
+2025-06-21 16:44:52.806 | INFO     | __main__:<module>:68 - Logging system initialized
+2025-06-21 16:44:52.807 | INFO     | __main__:<module>:69 - DuckDB path: D:\bharat_quandex\data_vault\market_boards\quandex.duckdb
+2025-06-21 16:44:52.809 | INFO     | __main__:main:548 - 🚀 Starting FII/DII tracker
+2025-06-21 16:44:52.810 | INFO     | __main__:__init__:115 - FII/DII scraper initialized
+2025-06-21 16:44:52.811 | INFO     | __main__:scrape:470 - Trying official API...
+2025-06-21 16:44:52.812 | DEBUG    | __main__:scrape_with_api:129 - Request headers: {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36', 'Accept-Encoding': 'gzip, deflate, br', 'Accept': 'application/json, text/plain, */*', 'Connection': 'keep-alive', 'Accept-Language': 'en-US,en;q=0.9', 'Referer': 'https://www.nseindia.com/', 'Sec-Fetch-Dest': 'empty', 'Sec-Fetch-Mode': 'cors', 'Sec-Fetch-Site': 'same-origin', 'X-Requested-With': 'XMLHttpRequest'}
+2025-06-21 16:44:53.604 | DEBUG    | __main__:scrape_with_api:134 - Session cookies: {'_abck': '1279CF6C17931945D6B8DBEC990A87A7~-1~YAAQT6XBF6eGDHmXAQAA0skykg5Qgx2udXnxl4TfXgz5BwWfg/Vp4EQWNBcPRr8RUlrlc6WnhwrzbnKQos/RFhqnxzLrNrL+gB6JiEEGTIj+KLeLGfHwJWk6rOBVBCGl6ak3+3Ug0u1MXjNqyceB8qI6XqXWkkTwmHzmpjuJ1QdwR703ap4u0+KCK/Bht6nZCD/4cyv1pOcqEXHekxbozQwpDa/GUvMlQ7IImIRdu3Mo0D+iAIYcv9sl573KRreDQG+ey9PR9kg/HiJjQFeurgAPHpMZ8oDT2jekvFOfGOiOe+9nv6Wo7eqXzyOZ436kyazoNrLvpnl623aTE3Hp1D+azBaUeswEH/P/vppTgczfEYtSNqWShk7EGGsj64ggB6gctPuNv/G8nA6rgvPnIa+W1ww3+RUrGdEDZ0YQO9dysiCVM105dxvz6yp6Forqi7csbJd8~-1~-1~-1', 'ak_bmsc': 'F64B3B8F4AEFC2D80076CAEB08AFD2BB~000000000000000000000000000000~YAAQT6XBF6iGDHmXAQAA0skykhwWNlZDefBexrCqN0ZthlDzh2uS7XFYLT/md9bHfHGNq5qunrEs5VfFOJl3IoDhem1YSqlU45RkuVwQCTsItgfDWd1xOG0WroEMvX8rU8eStS1OkKcAyW8TLyFkZPgcuPQigUfkOc3anHAs47+oTTJDurmMEYu6QLoba8xE/5MAJOa7x/URlNrH7nV+CP5aSYqT9FADgs1GTdpld7yhmif5dWPsk+JyJHDdKbRPlMiLlJ5Gs/cAn7Qg6pi0EF4Sm+rXPrUJk4KZYvmzjsXGzcb7lh8/VModyoHFzmOV1As6z7n7NGFBO/oBVdGuaavNxSUmQaYbRs37koj2CAl0ufAoz3Hck99WWt/mlxq+', 'bm_sz': '5B95A572EDACF01D2E25EAF437981CA3~YAAQT6XBF6qGDHmXAQAA0skykhzErbxUT3m/ZNgdtKzwqlhNekpGU96KM3UmppDMFoObDgcfwlJfrLqJutSFedTRR20VPefjJ0kZd88RHtUEa3sT/gYSmZU2HIjMzlRI3Z6rgvwR047M5KddqP1bz9Y0QxElpQ1cD2Palqug+J8Gi7gJNn8ScqtViMVDbClDXw239Ke4X3X7dKCthGwLqHZ2EOyqHUSjgnewanxzBw7J8WMx/JX2vnL0fOsExJSlczx7xLUOd0YUqqSmGChLMp4KMcBv+/dHRRxSlGmLZ8KKhKpayqxuVABk+UzuWSnDdBTe9Uq5Pm+1M/JBfzOJo5eVbfCKmsUC68QjFxcUkj8=~4343109~3293766'}
+2025-06-21 16:44:53.605 | INFO     | __main__:scrape_with_api:136 - NSE session established
+2025-06-21 16:44:53.674 | DEBUG    | __main__:scrape_with_api:144 - API status: 200
+2025-06-21 16:44:53.674 | DEBUG    | __main__:scrape_with_api:145 - Response headers: {'Server': 'Apache', 'Content-Security-Policy': "frame-ancestors self, default-src 'self'; font-src 'self' https://*.googleapis.com https://*.gstatic.com https://*.youtube.com https://*.bootstrapcdn.com https://*.highcharts.com https://*.nse.co.in https://*.nseindia.com; img-src 'self' data: https://www.google-analytics.com https://analytics.google.com https://*.youtube.com https://*.nse.co.in https://*.nseindia.com https://www.google.co.in https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://*.googleapis.com https://*.nseindia.com; script-src 'self' 'self' 'unsafe-inline' 'unsafe-eval' https://*.youtube.com https://*.gstatic.com https://www.google.com/ https://*.googletagmanager.com https://*.highcharts.com https://*.go-mpulse.net https://*.doubleclick.net https://www.google-analytics.com https://*.g.doubleclick.net/ https://analytics.google.com/ https://*.nse.co.in https://*.nseindia.com https://unpkg.com; connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://www.google.com/ https://*.nseindia.com wss://*.nseindia.com https://c.go-mpulse.net https://stats.g.doubleclick.net https://*.akstat.io/ https://*.akamaihd.net https://*.highcharts.com; frame-src 'self' https://www.googletagmanager.com https://www.google.com/ https://*.nseindia.com https://td.doubleclick.net https://*.youtube.com; frame-ancestors 'self'", 'X-DNS-Prefetch-Control': 'off', 'X-Frame-Options': 'SAMEORIGIN', 'X-Download-Options': 'noopen', 'X-Content-Type-Options': 'nosniff', 'X-XSS-Protection': '1; mode=block', 'Referrer-Policy': 'strict-origin-when-cross-origin', 'Access-Control-Allow-Origin': 'beta.nseindia.com, nseindia.com', 'Access-Control-Allow-Methods': 'GET,POST', 'Access-Control-Allow-Headers': 'Content-Type', 'Content-Type': 'application/json; charset=utf-8', 'Content-Encoding': 'br', 'Content-Length': '119', 'Date': 'Sat, 21 Jun 2025 11:14:51 GMT', 'Connection': 'keep-alive', 'Server-Timing': 'cdn-cache; desc=HIT, edge; dur=7, origin; dur=0, ak_p; desc="1750504491589_398566735_895221702_743_8611_42_0_-";dur=1', 'Akamai-GRN': '0.4fa5c117.1750504491.355bffc6', 'Strict-Transport-Security': 'max-age=31536000 ; includeSubDomains ; preload', 'Set-Cookie': 'bm_sv=2F46144EDC1E84B552607BC233C7D8C1~YAAQT6XBF7SGDHmXAQAAVsoykhyPSnJlGgY7051xIWLJCZW2bog61wa/Qzc4EOiFhyJO5fKCUN42WXmKMj1z0tjaGYCCyODHUaEEcxui9MId41vZqQ9tHHvKKRaEBwIGrbfEBcTS5yRzvavNtfBvNJU6OU1TwGmkXQyjwHGjeCZ1zRCbw5WDsJzX0+Ah++dGhLMRSCdYTsp/QS65aDxxKTxnCKpSZtd43aZxTalS3z0Lz8jv60hHAQL0V4CosraY5Wk=~1; Domain=.nseindia.com; Path=/; Expires=Sat, 21 Jun 2025 13:14:51 GMT; Max-Age=7200; Secure'}
+2025-06-21 16:44:53.675 | SUCCESS  | __main__:scrape_with_api:156 - Fetched FII/DII data from API
+2025-06-21 16:44:53.676 | DEBUG    | __main__:scrape_with_api:159 - API response snippet: [{'category': 'DII **', 'date': '20-Jun-2025', 'buyValue': '24208.65', 'sellValue': '27258.53', 'netValue': '-3049.88'}, {'category': 'FII/FPI *', 'date': '20-Jun-2025', 'buyValue': '52411.51', 'sellValue': '44470.81', 'netValue': '7940.7'}]...
+2025-06-21 16:44:53.678 | DEBUG    | __main__:_process_api_data:190 - Raw API columns: ['category', 'date', 'buyValue', 'sellValue', 'netValue']
+2025-06-21 16:44:53.686 | INFO     | __main__:_process_api_data:250 - Processed 2 records from API
+2025-06-21 16:44:54.019 | ERROR    | __main__:update_database:543 - Database update failed: Binder Error: table institutional_flows has 7 columns but 1 values were supplied
+2025-06-21 16:44:54.021 | INFO     | __main__:main:564 - ✅ Tracker completed in 1.21 seconds
+2025-06-21 17:06:30.155 | INFO     | __main__:<module>:68 - Logging system initialized
+2025-06-21 17:06:30.156 | INFO     | __main__:<module>:69 - DuckDB path: D:\bharat_quandex\data_vault\market_boards\quandex.duckdb
+2025-06-21 17:06:30.158 | INFO     | __main__:main:412 - 🚀 Starting FII/DII tracker
+2025-06-21 17:06:30.160 | INFO     | __main__:__init__:101 - FII/DII scraper initialized
+2025-06-21 17:06:30.161 | INFO     | __main__:scrape:346 - Trying official API...
+2025-06-21 17:06:30.163 | DEBUG    | __main__:scrape_with_api:111 - Request headers: {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36', 'Accept-Encoding': 'gzip, deflate, br', 'Accept': 'application/json, text/plain, */*', 'Connection': 'keep-alive', 'Accept-Language': 'en-US,en;q=0.9', 'Referer': 'https://www.nseindia.com/', 'Sec-Fetch-Dest': 'empty', 'Sec-Fetch-Mode': 'cors', 'Sec-Fetch-Site': 'same-origin', 'X-Requested-With': 'XMLHttpRequest'}
+2025-06-21 17:06:30.966 | DEBUG    | __main__:scrape_with_api:114 - Session cookies: {'_abck': 'C06AFB31348B0F6EA8E7391359513CCE~-1~YAAQVqXBF/0cqX+XAQAAoZVGkg66fGQ0NoH8gHMePgX4tChLT+bFyG1mhWtKz2famnQ+EpMrbA58CM1SQ2Cwc2PuIKhtbFrp6FUG8r+RDOmFs+swfuMovHnRv/6rt37Y0TaEDtTykB6/greWEJ2LO/xQrvl7Lb4+Wl0HaqmQCcnvhoKe/52sNe65yVtS9O8lmfFNjWuyvMujn9usju/Vt25n3JxqULkuI0aL2W2maeZ17wkjm97DVSVPAVt/DgzN8Z3Lz3EITG7Gy86wMLfMRyzbfydTtosGKd0NArp+9A4EdPVehofAzEpA9wxJaYmGm34c+DWMG9SaFzd6Zh8uGRRdomH5qJqwq5J4zugavaE8zoeD9ZBxDu79BKi/zjEhB9h4/7lbdTJMtPZK4xUpzfClbqQFmQbjGufookr0BMScZDMtTYpiOBEKvR83cbAFnoh18Ce5~-1~-1~-1', 'ak_bmsc': '405C2BA824DE94E1786BABF7F76512AA~000000000000000000000000000000~YAAQVqXBF/4cqX+XAQAAoZVGkhxleW9wXhzisedSXL7hb2oJt2YRmcKbhHhqrX1/PAvrlfP73zcsn6bJyiuT5iASNN8Zi3oy8xLUzQTW5Ge+SdsbNQB8axQM2GXOWoW7mc6IwNC7pqC8ycqNGuG6w7i0SNenSyjokH/MQpSBR8xBqpt97fiydSoGQZKgqBVgrwtkB06O7hIhiOmodA4+SzR5GpRqTSiPlKrBq+lUbMXzr+BjKJljmiFP53BXRE7FyxM1Ga1pZYQ5GmtHSdpn2jqcibY+DFm842sVSWIWYypTPCGSiyc4aFiSRC0VAne9fDnO3K1FkrUix+4BoC0jheBeV4tF3xR5HXiyQMJpxat/1cjZoIPIUA3wmxfSuJX/', 'bm_sz': '2A5D11C741184E22363919FE97E62C9B~YAAQVqXBFwAdqX+XAQAAoZVGkhwOyaLnw9Xm6wR21xh7XJPTaxRPcNTw2hlyo7aoHwrnQTTJfPzoPc4sUM7TDVo0ODUc0YbsHh+a5NyPdQKNWlkeXRtj61wzbxygJ95Gq8Ky2HEMxvhnQbdAHvPOWxdObXbMRg9h5re+zOQQ/YdfwNhq/U0NotQhv49tkBFiL/YpomQbJZca8RvopMNTk+95rP6+LTSGNNgr3q9W9FgA+ZogoBVw9FvM1AfjyMr3ZpZR9S2NJHpTlnHbznLcMm047V2EjD8fOCzgKUoJpWp4YPzCD0Im/1RDgUHcD1GpxdRNnEMlJL5edEyJFbmdMn82vsC+9wt8necm6qjR6DE=~3160387~3618101'}
+2025-06-21 17:06:30.967 | INFO     | __main__:scrape_with_api:116 - NSE session established
+2025-06-21 17:06:31.080 | DEBUG    | __main__:scrape_with_api:120 - API status: 401
+2025-06-21 17:06:31.081 | DEBUG    | __main__:scrape_with_api:121 - Response headers: {'Server': 'Apache', 'Content-Security-Policy': "frame-ancestors self, default-src 'self'; font-src 'self' https://*.googleapis.com https://*.gstatic.com https://*.youtube.com https://*.bootstrapcdn.com https://*.highcharts.com https://*.nse.co.in https://*.nseindia.com; img-src 'self' data: https://www.google-analytics.com https://analytics.google.com https://*.youtube.com https://*.nse.co.in https://*.nseindia.com https://www.google.co.in https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://*.googleapis.com https://*.nseindia.com; script-src 'self' 'self' 'unsafe-inline' 'unsafe-eval' https://*.youtube.com https://*.gstatic.com https://www.google.com/ https://*.googletagmanager.com https://*.highcharts.com https://*.go-mpulse.net https://*.doubleclick.net https://www.google-analytics.com https://*.g.doubleclick.net/ https://analytics.google.com/ https://*.nse.co.in https://*.nseindia.com https://unpkg.com; connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://www.google.com/ https://*.nseindia.com wss://*.nseindia.com https://c.go-mpulse.net https://stats.g.doubleclick.net https://*.akstat.io/ https://*.akamaihd.net https://*.highcharts.com; frame-src 'self' https://www.googletagmanager.com https://www.google.com/ https://*.nseindia.com https://td.doubleclick.net https://*.youtube.com; frame-ancestors 'self'", 'X-DNS-Prefetch-Control': 'off', 'X-Frame-Options': 'SAMEORIGIN', 'X-Download-Options': 'noopen', 'X-Content-Type-Options': 'nosniff', 'X-XSS-Protection': '1; mode=block', 'Referrer-Policy': 'strict-origin-when-cross-origin', 'Access-Control-Allow-Origin': 'beta.nseindia.com, nseindia.com', 'Access-Control-Allow-Methods': 'GET,POST', 'Access-Control-Allow-Headers': 'Content-Type', 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': '272', 'Date': 'Sat, 21 Jun 2025 11:36:28 GMT', 'Connection': 'keep-alive', 'Server-Timing': 'cdn-cache; desc=REVALIDATE, edge; dur=19, origin; dur=28, ak_p; desc="1750505788938_398566742_373555652_4671_8394_36_0_-";dur=1', 'Akamai-GRN': '0.56a5c117.1750505788.164401c4', 'Strict-Transport-Security': 'max-age=31536000 ; includeSubDomains ; preload', 'Set-Cookie': 'bm_sv=BDEDE89955F32A5C5BB0279BE9F62E6E~YAAQVqXBFw0dqX+XAQAAQpZGkhzsUiv5KzqqXvUMDHPviFAD9RpvSWeTK3Q2wHCbNbJLl0f3BJW2H22jWfCHTfUcNe+HiJS960eBbBnAfeJ/PlImW/z6GRXogrBYfWXdiP3SrWbTSLQOyCv12fAZdzkashN/Ge9Xs7VK34kE8NqoTFTY+4cF1jYDtC2w5pp/y0srUkKIegBqOC7mGskt7FKaj1XdR3O9EJivrco2+bpaCozRHxVJXI7BvSlQNaJDiOw=~1; Domain=.nseindia.com; Path=/; Expires=Sat, 21 Jun 2025 13:36:28 GMT; Max-Age=7200; Secure'}
+2025-06-21 17:06:31.082 | ERROR    | __main__:scrape_with_api:131 - API scrape failed: 401 Client Error: Unauthorized for url: https://www.nseindia.com/api/fiidiiTradeReact
+2025-06-21 17:06:31.084 | INFO     | __main__:scrape:350 - API failed, trying Playwright...
+2025-06-21 17:06:31.085 | DEBUG    | __main__:scrape_with_playwright:195 - Using Chromium with HTTP/2
+2025-06-21 17:06:36.282 | WARNING  | __main__:scrape_with_playwright:235 - HTTP/2 attempt failed: Page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://www.nseindia.com/market-data/fii-dii-activity
+Ca
+2025-06-21 17:06:36.283 | DEBUG    | __main__:scrape_with_playwright:195 - Using Chromium with HTTP/1.1
+2025-06-21 17:06:38.318 | WARNING  | __main__:scrape_with_playwright:235 - HTTP/1.1 attempt failed: Page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://www.nseindia.com/market-data/fii-dii-activity
+Ca
+2025-06-21 17:06:38.318 | INFO     | __main__:scrape_with_playwright:240 - Retry 1/3 in 4.0s
+2025-06-21 17:06:42.331 | DEBUG    | __main__:scrape_with_playwright:195 - Using Chromium with HTTP/2
+2025-06-21 17:06:44.413 | WARNING  | __main__:scrape_with_playwright:235 - HTTP/2 attempt failed: Page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://www.nseindia.com/market-data/fii-dii-activity
+Ca
+2025-06-21 17:06:44.414 | DEBUG    | __main__:scrape_with_playwright:195 - Using Chromium with HTTP/1.1
+2025-06-21 17:06:46.346 | WARNING  | __main__:scrape_with_playwright:235 - HTTP/1.1 attempt failed: Page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://www.nseindia.com/market-data/fii-dii-activity
+Ca
+2025-06-21 17:06:46.347 | INFO     | __main__:scrape_with_playwright:240 - Retry 2/3 in 8.0s
+2025-06-21 17:06:54.358 | DEBUG    | __main__:scrape_with_playwright:195 - Using Chromium with HTTP/2
+2025-06-21 17:06:56.481 | WARNING  | __main__:scrape_with_playwright:235 - HTTP/2 attempt failed: Page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://www.nseindia.com/market-data/fii-dii-activity
+Ca
+2025-06-21 17:06:56.482 | DEBUG    | __main__:scrape_with_playwright:195 - Using Chromium with HTTP/1.1
+2025-06-21 17:06:58.397 | WARNING  | __main__:scrape_with_playwright:235 - HTTP/1.1 attempt failed: Page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://www.nseindia.com/market-data/fii-dii-activity
+Ca
+2025-06-21 17:06:58.398 | INFO     | __main__:scrape_with_playwright:240 - Retry 3/3 in 16.0s
+2025-06-21 17:07:14.414 | ERROR    | __main__:scrape_with_playwright:242 - Playwright scraping failed after all attempts
+2025-06-21 17:07:14.417 | ERROR    | __main__:scrape:354 - All scraping methods failed, using mock data
+2025-06-21 17:07:14.455 | WARNING  | __main__:_generate_mock_data:338 - Generated 4 days of mock data
+2025-06-21 17:07:16.735 | SUCCESS  | __main__:update_database:404 - Updated 4 records
+2025-06-21 17:07:16.737 | INFO     | __main__:main:421 - ✅ Tracker completed in 46.58 seconds
+2025-06-21 17:11:04.884 | INFO     | __main__:<module>:67 - Logging system initialized
+2025-06-21 17:11:04.885 | INFO     | __main__:<module>:68 - DuckDB path: D:\bharat_quandex\data_vault\market_boards\quandex.duckdb
+2025-06-21 17:11:04.889 | INFO     | __main__:main:425 - 🚀 Starting FII/DII tracker
+2025-06-21 17:11:04.890 | INFO     | __main__:__init__:99 - FII/DII scraper initialized
+2025-06-21 17:11:04.890 | INFO     | __main__:scrape:359 - Trying official API...
+2025-06-21 17:11:04.891 | DEBUG    | __main__:scrape_with_api:109 - Request headers: {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15', 'Accept-Encoding': 'gzip, deflate, br', 'Accept': 'application/json, text/plain, */*', 'Connection': 'keep-alive', 'Accept-Language': 'en-US,en;q=0.9', 'Referer': 'https://www.nseindia.com/', 'Cookie': '', 'X-Requested-With': 'XMLHttpRequest'}
+2025-06-21 17:11:05.905 | DEBUG    | __main__:scrape_with_api:114 - Session cookies: {'_abck': '26FC945EEA358404B94EA5146270AC4E~-1~YAAQT6XBF3GNDnmXAQAAncdKkg4hMJnWjsypz5kiWA37DtHSW5hIRuQ2eXujv8lwk3WihPJ1xvJSSh8v+7gBemVBXTE1YfN9/Yn6Pin/skm31fkKKybFuNP46vC6MDlt4wTGQS0EBVij59CY0+HiKxrK9JyG/0G66n0X/Y6LE/FmL+nUWd1RW/BVd5eAz4buTRHUiIsLulFBS9tiy7oyIuyv4qYgQLedGbQOU73maPvu0WgQLENsFIoW0IA4nTZfln+sRImL6jNuKbzDZT4VzHwF/ELhRb8ApC47WhS7eEKGGOlkNEXqtuDP8CyQc9VTzapvA37aExkb3svT4fbSc9k4ldDsGnm7MY0aUDNOeuOR56jRPk/VQD4fMCdTSS+AA/7LOd2HX3SrfqaERCG271IhrUBs9C0JfcOn0fdC+Q402tRYHmMgSRpJlbrjG7xpEy6vN/4HgQ==~-1~-1~-1', 'ak_bmsc': '982B54C0984795286FD508F8662E7A66~000000000000000000000000000000~YAAQT6XBF3KNDnmXAQAAncdKkhw7Gt4ELP5RR8+qw8oTTzNw8jCeYonWqBwo2GcA/wH70umaT4hbJ+XGOYaue3SGaTHXfBXkFc+HZa48n37+/o3MGL2o+4dMysP45C/fRGfwTBKwoZSRpxtcpNECiJXlRQSY/96qAwel1puSMFlK3KS82WNwqYtii45NFMxwFHd6DrhyTu0t8BPzGyQYLHbMNMlYk52AJr4fQTzoWfjefSRKiEq5UIu8Ufv7jk+W+QVoXbmQ7Svrvm6Nh36izL8qgvxc0yM2IqQkzEYEz+NuxpGTG+q8rYb17ADjE/wMrpL8MLv1V2kWKW+JiBfoETK895PJwknhBELWnDsR6gDQ85uZhLCyIxOfPDxJyOnnBg==', 'bm_sz': '1FE2031DFAFC12E41805DE7B491F4663~YAAQT6XBF3SNDnmXAQAAncdKkhzjSJPWnBKBJ6Y1IC0z+KYfX2Yztt0Nq18Nkfh0WHssmo8utTcdNXQSBvoXEmLQQMQ97RVuO6klad9pBuccPMftbWu8+K9iXREnIvAzkzJBXa++Dhd4h6CRMsAsbsTMhPdU5ub5cRGFCFCDMcHIGY5fbwl/YK5/bWL9X/pE8BmHxblJO/HBkTrIOU6t0uWDhhX8reneJyOeFh/djVX5qSLAfRId5lbdjSmN9Wm2dQPfvLKPs1Duw23KS3RFkB7QEdN8G5OLGEuapv+4mrOQW/K16Glcc1x4xTpsuoE89NLDrCr5IXHbP5QK2ChOIV21Qa3XAqpce7390Y6xAIU=~4272452~4404788'}
+2025-06-21 17:11:05.905 | INFO     | __main__:scrape_with_api:120 - NSE session established
+2025-06-21 17:11:06.000 | DEBUG    | __main__:scrape_with_api:126 - API status: 200
+2025-06-21 17:11:06.001 | SUCCESS  | __main__:scrape_with_api:135 - Fetched FII/DII data from API
+2025-06-21 17:11:06.002 | DEBUG    | __main__:scrape_with_api:136 - API response snippet: [{'category': 'DII **', 'date': '20-Jun-2025', 'buyValue': '24208.65', 'sellValue': '27258.53', 'netValue': '-3049.88'}, {'category': 'FII/FPI *', 'date': '20-Jun-2025', 'buyValue': '52411.51', 'sellValue': '44470.81', 'netValue': '7940.7'}]...
+2025-06-21 17:11:06.116 | INFO     | __main__:_process_api_data:188 - Processed 2 records from API
+2025-06-21 17:11:07.699 | SUCCESS  | __main__:update_database:417 - Updated 2 records
+2025-06-21 17:11:07.701 | INFO     | __main__:main:434 - ✅ Tracker completed in 2.81 seconds
+2025-06-21 17:22:12.247 | INFO     | __main__:<module>:67 - Logging system initialized
+2025-06-21 17:22:12.248 | INFO     | __main__:<module>:68 - DuckDB path: D:\bharat_quandex\data_vault\market_boards\quandex.duckdb
+2025-06-21 17:22:12.250 | INFO     | __main__:main:425 - 🚀 Starting FII/DII tracker
+2025-06-21 17:22:12.251 | INFO     | __main__:__init__:99 - FII/DII scraper initialized
+2025-06-21 17:22:12.251 | INFO     | __main__:scrape:359 - Trying official API...
+2025-06-21 17:22:12.253 | DEBUG    | __main__:scrape_with_api:109 - Request headers: {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36', 'Accept-Encoding': 'gzip, deflate, br', 'Accept': 'application/json, text/plain, */*', 'Connection': 'keep-alive', 'Accept-Language': 'en-US,en;q=0.9', 'Referer': 'https://www.nseindia.com/', 'Cookie': '', 'X-Requested-With': 'XMLHttpRequest'}
+2025-06-21 17:22:13.052 | DEBUG    | __main__:scrape_with_api:114 - Session cookies: {'_abck': '76E98036B4CE3461884713F5AB83127C~-1~YAAQT6XBF9x9D3mXAQAAm/VUkg4zwUVmn01NIMAr1oozSfn8iKbEmqd8Gg7hBkQzE3qbQLqwyxx5cuBOFFQdcYiHxzo2fvV573MREDxsDtKzMNXJtybj/N2lSSoUKodQ+u05jF0h8YziTtvczYWF6vJvnTVnCt2LLSkEkwRhi64ctAncZ58Qf9qJ8gCWW8yMwC322ADezyc73MzrIZEEZhS7m+R417jHJEr69dJhOa4e6Z7e6f3Hxv/9qHYUIRNKOyQ7sBNYIGSFrPXfNOHQzts38Ge0A0ijClHKMphJUljtxlWiPz9FIKEouNNA6GTREWMhgg5vFitzlQQcKMIKVlmv7OQQ5ZQ0S5xYFdROF09rIAVMleiIUE8n8Dd5N+qM9KJWoR/xnC2w0WQbOIMLV4TVV+9uRNV7HCxijyxuhUucbe2GlfnpIOJsSBZZ6EOXBBSkmvA=~-1~-1~-1', 'bm_sz': '301F21A1B5628F8EFE98C5476E194CC7~YAAQT6XBF919D3mXAQAAm/VUkhwFAJti7bofrL49x98ZhfWrvPFoYojb9G8Dl5cl15vUcapBjDCiISkOYwGkavzBzjsnqlIn8Xqrao2tI72kCwhDNvd38kZ7FFXpNOBYLpdmfl5Fp5UtSYHagADGZYGyJr3qYNCuhFwfFfpp2ScZzKqOVtNno1VQEgpSKyxmhYVZ8EpP58rdPq1ke/Ks/FBT+Zqeh6fuhmbIfVlY7yddqVNAFO5tUalFP42KYNzJ9tR0S2Pc5aiVaScK5Z+6DvwXQhXSjhbnO5ApZzXrM9x14fMoWfxmEe/y9henxrJ9v7PKyzawiS+6fbcTfXQe3/Fjq7zSI6qTBV2nNX+4Gec=~3488051~3488057'}
+2025-06-21 17:22:13.052 | INFO     | __main__:scrape_with_api:120 - NSE session established
+2025-06-21 17:22:13.124 | DEBUG    | __main__:scrape_with_api:126 - API status: 200
+2025-06-21 17:22:13.125 | SUCCESS  | __main__:scrape_with_api:135 - Fetched FII/DII data from API
+2025-06-21 17:22:13.125 | DEBUG    | __main__:scrape_with_api:136 - API response snippet: [{'category': 'DII **', 'date': '20-Jun-2025', 'buyValue': '24208.65', 'sellValue': '27258.53', 'netValue': '-3049.88'}, {'category': 'FII/FPI *', 'date': '20-Jun-2025', 'buyValue': '52411.51', 'sellValue': '44470.81', 'netValue': '7940.7'}]...
+2025-06-21 17:22:13.132 | INFO     | __main__:_process_api_data:188 - Processed 2 records from API
+2025-06-21 17:22:14.600 | SUCCESS  | __main__:update_database:417 - Updated 2 records
+2025-06-21 17:22:14.603 | INFO     | __main__:main:434 - ✅ Tracker completed in 2.35 seconds
+2025-06-21 17:22:14.612 | INFO     | __main__:main:437 - Data sample:
+shape: (2, 1)
+┌────────────┐
+│ date       │
+│ ---        │
+│ date       │
+╞════════════╡
+│ 2025-06-20 │
+│ 2025-06-20 │
+└────────────┘
+2025-06-21 17:22:14.652 | SUCCESS  | __main__:main:445 - Latest record: {'date': Timestamp('2025-06-20 00:00:00'), 'fii_net_cr': nan, 'dii_net_cr': nan}

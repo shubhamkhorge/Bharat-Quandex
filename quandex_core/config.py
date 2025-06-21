@@ -5,7 +5,7 @@ Centralized settings management with environment variable support
 
 import os
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Optional
 from dataclasses import dataclass, field
 from dotenv import load_dotenv
 import duckdb
@@ -19,13 +19,13 @@ PROJECT_ROOT = Path(__file__).parent.parent.resolve()
 @dataclass
 class DataConfig:
     """Data storage and processing configuration"""
-    raw_data_path: Path = None
-    processed_data_path: Path = None
-    duckdb_path: Path = None
+    raw_data_path: Optional[Path] = None
+    processed_data_path: Optional[Path] = None
+    duckdb_path: Optional[Path] = None
     duckdb_memory_limit: str = "4GB"
     backup_days: int = 30
     max_file_size_mb: int = 500
-    conn: duckdb.DuckDBPyConnection = None
+    conn: Optional[duckdb.DuckDBPyConnection] = None
     
     def __post_init__(self):
         # Set absolute paths based on project root
@@ -158,6 +158,23 @@ class DashboardConfig:
     auto_refresh: bool = True
     refresh_interval: int = 300  # 5 minutes
 
+@dataclass
+class ScrapingConfig:
+    """Web scraping configuration"""
+    proxy: Optional[str] = None  # Proxy URL if needed
+    user_agents: Optional[List[str]] = None
+    request_timeout: int = 30
+    max_retries: int = 3
+    retry_delay: float = 2.0
+    
+    def __post_init__(self):
+        if self.user_agents is None:
+            self.user_agents = [
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15',
+                'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            ]
+
 class Config:
     """Main configuration class"""
     
@@ -167,6 +184,7 @@ class Config:
         self.backtest = BacktestConfig()
         self.ml = MLConfig()
         self.dashboard = DashboardConfig()
+        self.scraping = ScrapingConfig()
         
         # Override with environment variables if present
         self._load_env_overrides()
@@ -174,22 +192,27 @@ class Config:
     def _load_env_overrides(self):
         """Load configuration overrides from environment variables"""
         # Data paths
-        if os.getenv("NSE_DATA_PATH"):
-            self.data.raw_data_path = Path(os.getenv("NSE_DATA_PATH"))
+        nse_data_path = os.getenv("NSE_DATA_PATH")
+        if nse_data_path:
+            self.data.raw_data_path = Path(nse_data_path)
         
-        if os.getenv("PROCESSED_DATA_PATH"):
-            self.data.processed_data_path = Path(os.getenv("PROCESSED_DATA_PATH"))
+        processed_data_path = os.getenv("PROCESSED_DATA_PATH")
+        if processed_data_path:
+            self.data.processed_data_path = Path(processed_data_path)
         
         # Dashboard settings
-        if os.getenv("DASHBOARD_HOST"):
-            self.dashboard.host = os.getenv("DASHBOARD_HOST")
+        dashboard_host = os.getenv("DASHBOARD_HOST")
+        if dashboard_host:
+            self.dashboard.host = dashboard_host
         
-        if os.getenv("DASHBOARD_PORT"):
-            self.dashboard.port = int(os.getenv("DASHBOARD_PORT"))
+        dashboard_port = os.getenv("DASHBOARD_PORT")
+        if dashboard_port:
+            self.dashboard.port = int(dashboard_port)
         
         # Backtest settings
-        if os.getenv("INITIAL_CAPITAL"):
-            self.backtest.initial_capital = float(os.getenv("INITIAL_CAPITAL"))
+        initial_capital = os.getenv("INITIAL_CAPITAL")
+        if initial_capital:
+            self.backtest.initial_capital = float(initial_capital)
 
 # Global configuration instance
 config = Config()
@@ -197,10 +220,14 @@ config = Config()
 # Convenience functions
 def get_data_path(filename: str = "") -> Path:
     """Get path to data file"""
+    if config.data.processed_data_path is None:
+        raise ValueError("Processed data path not configured")
     return config.data.processed_data_path / filename
 
 def get_raw_data_path(filename: str = "") -> Path:
     """Get path to raw data file"""
+    if config.data.raw_data_path is None:
+        raise ValueError("Raw data path not configured")
     return config.data.raw_data_path / filename
 
 def is_trading_day(date_str: str) -> bool:
@@ -221,6 +248,8 @@ def is_trading_day(date_str: str) -> bool:
         return True
     except ValueError:
         return False
+
+        
 
 if __name__ == "__main__":
     # Test configuration

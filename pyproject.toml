@@ -40,6 +40,10 @@ dependencies = [
     # Development
     "jupyter>=1.0.0",
     "ipykernel>=6.25.0",
+    #scrapper
+    "crawl4ai>=0.2.0",
+    "playwright>=1.40.0",
+    "beautifulsoup4",
 ]
 
 [project.optional-dependencies]
