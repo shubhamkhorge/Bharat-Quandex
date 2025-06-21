@@ -64,7 +64,7 @@ def mock_global_config_for_e2e(mocker):
     # Use actual URLs from NSE_FII_DII_Scraper constants for matching in mocks
     mock_cfg.scraping.nse_fii_dii_home_url = "https://www.nseindia.com"
     mock_cfg.scraping.nse_fii_dii_api_url = "https://www.nseindia.com/api/fiidiiTradeReact"
-    mock_cfg.scraping.nse_fii_dii_html_url = NSE_FII_DII_Scraper.HTML_URL
+    mock_cfg.scraping.nse_fii_dii_html_url = "https://www.nseindia.com/market-data/fii-dii-activity"
     mock_cfg.market.trading_holidays = [] # Simplify by having no holidays for mock data generation tests
 
     # Patch this config into the module where `main` and `NSE_FII_DII_Scraper` will see it

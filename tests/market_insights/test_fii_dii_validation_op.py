@@ -28,7 +28,7 @@ def mock_global_config_for_validation_op(mocker):
     mock_cfg.scraping.user_agents = ["test_validation_op_user_agent"]
     mock_cfg.scraping.nse_fii_dii_home_url = "https://www.nseindia.com"
     mock_cfg.scraping.nse_fii_dii_api_url = "https://www.nseindia.com/api/fiidiiTradeReact"
-    mock_cfg.scraping.nse_fii_dii_html_url = NSE_FII_DII_Scraper.HTML_URL
+    mock_cfg.scraping.nse_fii_dii_html_url = "https://www.nseindia.com/market-data/fii-dii-activity"
     mock_cfg.market.trading_holidays = []
 
     mocker.patch('quandex_core.market_insights.fii_dii_tracker.config', mock_cfg)

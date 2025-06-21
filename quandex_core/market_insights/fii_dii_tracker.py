@@ -484,7 +484,7 @@ async def main():
                 ORDER BY date DESC
                 LIMIT 1
             """).fetchdf()
-            logger.success(f"Latest record: {latest.to_dict('records')[0]}")
+            logger.success(f"Latest record: {latest.to_dicts()[0]}")
 
 if __name__ == "__main__":
     asyncio.run(main())
