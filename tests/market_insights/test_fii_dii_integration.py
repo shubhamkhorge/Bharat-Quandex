@@ -191,5 +191,3 @@ class TestMainOrchestratorFunction:
         assert "FII/DII data scraped successfully." in caplog.text
         assert "Failed to update database with FII/DII data." in caplog.text
         assert "FII/DII tracker update completed in 1.50 seconds." in caplog.text
-
-```

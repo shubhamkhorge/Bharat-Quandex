@@ -278,5 +278,3 @@ class TestUpdateDatabase:
         mock_duckdb_connection.close.assert_called_once() # Ensure connection is closed even on error
 
 # More tests to come for _generate_mock_data and update_database
-
-```

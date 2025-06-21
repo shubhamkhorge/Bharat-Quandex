@@ -239,4 +239,3 @@ class TestFiiDiiE2EWorkflow:
         # For simplicity, this E2E test focuses on the fallback to _generate_mock_data and its data being passed to update_database.
         # A separate integration test (like test_successful_data_flow_to_in_memory_db) already confirms
         # that update_database correctly writes to DB.
-```

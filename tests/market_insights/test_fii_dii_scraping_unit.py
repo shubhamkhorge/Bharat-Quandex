@@ -236,6 +236,3 @@ class TestScrapeOrchestration:
         assert_frame_equal(result, sample_df)
         mock_generate.assert_called_once()
         mock_logger_info.assert_any_call("All scraping methods failed. Falling back to mock data.")
-
-
-```

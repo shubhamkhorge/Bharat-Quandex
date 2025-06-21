@@ -149,5 +149,3 @@ class TestFiiDiiFailureScenarios:
         assert "Error during database update" in mock_logger_error.call_args[0][0]
         assert "Simulated Read-Only DB: Cannot write" in str(mock_logger_error.call_args[0][1]) # Check exception in log
         mock_conn.close.assert_called_once() # Ensure connection is closed
-
-```
