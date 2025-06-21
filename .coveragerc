@@ -1,0 +1,19 @@
+[run]
+source = quandex_core
+omit =
+    */.ipynb_checkpoints/*
+    */__pycache__/*
+    */tests/*
+    */*_env/*
+    */*venv/*
+    */site-packages/*
+    quandex_core/config.py
+    quandex_core/__init__.py
+
+[report]
+show_missing = True
+skip_covered = False
+ignore_errors = True
+
+[html]
+directory = coverage_html_report
