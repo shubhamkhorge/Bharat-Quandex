@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.13.3"] # Test on relevant Python versions
+        python-version: ["3.13"] # Test on relevant Python versions
 
     steps:
     - name: Checkout repository

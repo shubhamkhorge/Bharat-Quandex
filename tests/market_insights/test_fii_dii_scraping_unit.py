@@ -35,8 +35,10 @@ def mock_config_for_scraper(mocker):
 @pytest.fixture
 def scraper_instance(mock_config_for_scraper):
     """Provides an instance of NSE_FII_DII_Scraper with mocked config."""
-    with patch.object(NSE_FII_DII_Scraper, '_initialize_db_schema', return_value=None):
-        scraper = NSE_FII_DII_Scraper(retries=1, backoff_factor=0.01) # Fast retries for tests
+    # _initialize_db_schema is not a method in the provided source code of NSE_FII_DII_Scraper
+    # Its __init__ does not call such a method.
+    # DB schema is handled directly in update_database method.
+    scraper = NSE_FII_DII_Scraper(retries=1, backoff_factor=0.01) # Fast retries for tests
     return scraper
 
 class TestScrapeWithApi:

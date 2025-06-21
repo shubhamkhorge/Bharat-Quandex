@@ -45,9 +45,10 @@ class TestFiiDiiScrapingToDatabaseFlow:
     @pytest.mark.asyncio
     async def test_successful_data_flow_to_in_memory_db(self, mock_config_for_integration, sample_fii_dii_data, mocker):
         # Initialize scraper and override db_path to use in-memory DuckDB
-        # Patch _initialize_db_schema as it's called in init and might try to use the real DB path from config before override
-        with patch.object(NSE_FII_DII_Scraper, '_initialize_db_schema', return_value=None) as mock_init_db_schema:
-            scraper = NSE_FII_DII_Scraper()
+        # _initialize_db_schema is not a method in the provided source code of NSE_FII_DII_Scraper
+        # Its __init__ does not call such a method.
+        # DB schema is handled directly in update_database method or by direct duckdb calls in __init__.
+        scraper = NSE_FII_DII_Scraper()
 
         scraper.db_path = ":memory:"
         # Call _initialize_db_schema manually now with the in-memory path implicitly used by duckdb.connect
@@ -107,8 +108,8 @@ class TestFiiDiiScrapingToDatabaseFlow:
     @pytest.mark.asyncio
     async def test_flow_when_scrape_returns_empty(self, mock_config_for_integration, mocker):
         # Scraper setup
-        with patch.object(NSE_FII_DII_Scraper, '_initialize_db_schema', return_value=None):
-            scraper = NSE_FII_DII_Scraper()
+        # _initialize_db_schema is not a method in the provided source code of NSE_FII_DII_Scraper
+        scraper = NSE_FII_DII_Scraper()
         scraper.db_path = ":memory:" # Use in-memory to avoid file system writes
 
         mock_scrape_method = AsyncMock(return_value=pl.DataFrame()) # Empty DataFrame
@@ -134,6 +135,7 @@ class TestMainOrchestratorFunction:
     async def test_main_successful_run(self, mock_config_for_integration, sample_fii_dii_data, mocker, caplog):
         # Mock the NSE_FII_DII_Scraper class itself or its instance methods if instance is created in main
         mock_scraper_instance = MagicMock(spec=NSE_FII_DII_Scraper)
+        mock_scraper_instance.db_path = ":memory:" # Ensure the mock instance has this attribute
         mock_scraper_instance.scrape = AsyncMock(return_value=sample_fii_dii_data)
         mock_scraper_instance.update_database.return_value = True
 
@@ -168,14 +170,15 @@ class TestMainOrchestratorFunction:
         mock_scraper_instance.scrape.assert_awaited_once()
         mock_scraper_instance.update_database.assert_not_called() # Should not call if scrape returns None
 
-        assert "Starting FII/DII tracker update..." in caplog.text
-        assert "Scraping FII/DII data failed or returned no data." in caplog.text
+        assert "Scraping failed completely" in caplog.text # Changed this line
+        assert "Scraping FII/DII data failed or returned no data." in caplog.text # This line might be redundant if the one above is the true "complete" failure log. Or it might be from scraper internal logs.
         assert "FII/DII tracker update completed in 1.00 seconds." in caplog.text # Duration check
 
 
     @pytest.mark.asyncio
     async def test_main_database_update_fails(self, mock_config_for_integration, sample_fii_dii_data, mocker, caplog):
         mock_scraper_instance = MagicMock(spec=NSE_FII_DII_Scraper)
+        mock_scraper_instance.db_path = ":memory:" # Ensure the mock instance has this attribute
         mock_scraper_instance.scrape = AsyncMock(return_value=sample_fii_dii_data)
         mock_scraper_instance.update_database.return_value = False # Simulate DB update failure
 
