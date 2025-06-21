@@ -27,6 +27,9 @@ jobs:
         python -m pip install --upgrade pip
         pip install .[dev]  # Installs project + dev dependencies from pyproject.toml
 
+    - name: Install Playwright browsers
+      run: python -m playwright install --with-deps chromium
+
     - name: Run tests and generate coverage
       run: |
         python -m pytest --cov=quandex_core --cov-report=xml --cov-report=term

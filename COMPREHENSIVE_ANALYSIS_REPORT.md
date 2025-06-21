@@ -185,3 +185,64 @@ While a good suite of unit tests has been developed, the following testing strat
 *   **Tools**: Libraries like `mutmut` can be used for Python.
 
 By implementing these additional testing strategies, the `quandex_core` project can achieve a higher degree of confidence in its correctness, performance, and robustness.
+
+## 7. Manual Operational Verification for `fii_dii_tracker.py`
+
+Beyond automated tests, regular manual checks are recommended to ensure the `fii_dii_tracker.py` script operates correctly and the data remains accurate, especially since it relies on external website structures and APIs that can change.
+
+1.  **Run the script and verify logs:**
+    *   Execute the script manually (e.g., `python quandex_core/market_insights/fii_dii_tracker.py`).
+    *   Inspect the log output (both console and the log file in `logs/fii_dii_scraper.log`).
+    *   Check for:
+        *   Successful initialization and connection attempts.
+        *   Which data source was used (API, Playwright, Mock Data).
+        *   Any error messages, retry attempts, or warnings.
+        *   Confirmation of database update success and number of records processed.
+        *   Total runtime.
+
+2.  **Inspect DuckDB:**
+    *   Connect to the DuckDB database specified in the configuration (`data_vault/market_boards/quandex.duckdb`).
+    *   Run SQL queries to check the latest data:
+        ```sql
+        SELECT * FROM institutional_flows ORDER BY date DESC LIMIT 5;
+        SELECT * FROM v_institutional_trends ORDER BY date DESC LIMIT 5;
+        ```
+    *   Verify that the dates are recent and the values appear reasonable.
+
+3.  **Validate against NSE website:**
+    *   Navigate to the official NSE FII/DII activity page: [https://www.nseindia.com/market-data/fii-dii-activity](https://www.nseindia.com/market-data/fii-dii-activity)
+    *   Compare the latest few days' values (FII Buy, FII Sell, FII Net, DII Buy, DII Sell, DII Net) from your database with the values shown on the NSE website.
+    *   Account for any minor discrepancies due to timing of data updates.
+
+4.  **Test failure scenarios (Manual Simulation if not fully automated):**
+    *   **Temporarily block internet access** for the machine running the script and observe fallback behavior (should try API, then Playwright, then fall back to mock data, with appropriate logging).
+    *   *(Automated tests already simulate API failure, Playwright issues, and DB read-only for more controlled checks).*
+
+## 8. Key Testing Metrics for `fii_dii_tracker.py`
+
+Tracking these metrics over time can help assess the reliability, performance, and effectiveness of the `fii_dii_tracker.py` script. Implementing a system to collect and monitor these would require additional infrastructure (e.g., a database to store run metadata, a dashboarding tool).
+
+1.  **Success Rate (Data Source Usage):**
+    *   **Metric:** Percentage of runs successfully using the primary API vs. Playwright fallback vs. Mock data generation.
+    *   **Collection Idea:** The script could log its final data source. A separate process could parse these logs over time.
+    *   **Goal:** Maximize API usage, minimize mock data usage.
+
+2.  **Data Freshness:**
+    *   **Metric:** The difference in days between the current date and the date of the latest record in the `institutional_flows` table after a script run.
+    *   **Collection Idea:** Query the database for `MAX(date)` after each run and compare with the current date.
+    *   **Goal:** Keep data as fresh as possible (ideally 0-1 day lag, depending on NSE update frequency).
+
+3.  **Runtime:**
+    *   **Metric:** Execution time of the script. Track average, median, and 95th percentile runtimes.
+    *   **Collection Idea:** The `main()` function already logs total duration. This can be parsed and stored.
+    *   **Goal:** Monitor for performance regressions or unusual spikes in runtime.
+
+4.  **Error Rate:**
+    *   **Metric:** Percentage of runs that encounter critical errors or fail to update the database.
+    *   **Collection Idea:** Parse logs for specific error messages or check the return status of database updates.
+    *   **Goal:** Minimize error rate.
+
+5.  **Code Coverage (Automated Test Metric):**
+    *   **Metric:** Percentage of code lines covered by automated tests (unit, integration, E2E).
+    *   **Collection:** Provided by `pytest-cov` and tracked via Codecov in the CI/CD pipeline.
+    *   **Goal:** Maintain 85%+ coverage for `fii_dii_tracker.py`. (Note: This specific goal might be higher than the project-wide 80% if this module is deemed critical).
