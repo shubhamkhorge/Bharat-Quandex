@@ -3,6 +3,7 @@ import polars as pl
 from polars.testing import assert_frame_equal
 from datetime import date, timedelta, datetime
 from unittest.mock import MagicMock, patch
+import duckdb # Added import
 
 from quandex_core.market_insights.fii_dii_tracker import NSE_FII_DII_Scraper
 from quandex_core import config as global_config_module # For mocking
@@ -258,7 +259,7 @@ class TestUpdateDatabase:
         mocker.patch('duckdb.connect', side_effect=Exception("DB Connection Failed"))
 
         # Mock logger to check for error logging
-        mock_logger_error = mocker.patch.object(scraper_instance.logger, 'error')
+        mock_logger_error = mocker.patch('quandex_core.market_insights.fii_dii_tracker.logger.error')
 
         result = scraper_instance.update_database(sample_df)
         assert result is False
@@ -270,7 +271,7 @@ class TestUpdateDatabase:
         sample_df = pl.DataFrame({"date": [date(2024, 8, 26)], "fii_buy_cr": [100.0]})
         mock_duckdb_connection.execute.side_effect = Exception("SQL Execution Failed")
 
-        mock_logger_error = mocker.patch.object(scraper_instance.logger, 'error')
+        mock_logger_error = mocker.patch('quandex_core.market_insights.fii_dii_tracker.logger.error')
 
         result = scraper_instance.update_database(sample_df)
         assert result is False

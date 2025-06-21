@@ -152,10 +152,13 @@ class NSE_FII_DII_Scraper:
             else:
                 logger.warning(f"Unexpected API response type: {type(data)}")
                 return None
+
             if not records:
                 logger.warning("No records in API response")
                 return None
+
             df = pl.DataFrame(records)
+
             column_mapping = {
                 "tradedDate": "date", "tradeDate": "date", "date": "date",
                 "fiiBuy": "fii_buy_cr", "fiiPurchaseValue": "fii_buy_cr", "fii_buy": "fii_buy_cr",
@@ -165,26 +168,62 @@ class NSE_FII_DII_Scraper:
                 "diiSell": "dii_sell_cr", "diiSalesValue": "dii_sell_cr", "dii_sell": "dii_sell_cr",
                 "diiNet": "dii_net_cr", "dii_net": "dii_net_cr"
             }
-            available_columns = [col for col in column_mapping.keys() if col in df.columns]
-            df = df.select(available_columns)
-            df = df.rename({col: column_mapping[col] for col in available_columns})
+
+            # Rename columns based on mapping
+            current_columns = df.columns
+            df = df.rename({orig_col: column_mapping[orig_col]
+                            for orig_col in current_columns if orig_col in column_mapping})
+
+            # Parse date column
             if 'date' in df.columns:
                 df = df.with_columns(
                     pl.col("date").str.strptime(pl.Date, "%d-%b-%Y", strict=False)
                 )
-            if 'fii_net_cr' not in df.columns and 'fii_buy_cr' in df.columns and 'fii_sell_cr' in df.columns:
+
+            # Convert numeric columns
+            potential_numeric_cols = [
+                'fii_buy_cr', 'fii_sell_cr', 'fii_net_cr',
+                'dii_buy_cr', 'dii_sell_cr', 'dii_net_cr'
+            ]
+            for col_name in potential_numeric_cols:
+                if col_name in df.columns:
+                    df = df.with_columns(
+                        pl.col(col_name)
+                        .str.replace_all(r"[, ]", "") # Remove commas and spaces
+                        .replace("", None) # Replace empty strings with null
+                        .cast(pl.Float64, strict=False) # Cast to float, invalid become null
+                        .fill_null(0.0) # Fill actual nulls (from cast error or original) with 0.0
+                        .alias(col_name)
+                    )
+
+            # Calculate net values if buy/sell columns are present
+            if 'fii_buy_cr' in df.columns and 'fii_sell_cr' in df.columns:
                 df = df.with_columns(
                     (pl.col("fii_buy_cr") - pl.col("fii_sell_cr")).alias("fii_net_cr")
                 )
-            if 'dii_net_cr' not in df.columns and 'dii_buy_cr' in df.columns and 'dii_sell_cr' in df.columns:
+            elif 'fii_net_cr' not in df.columns: # Ensure column exists if not calculable
+                 df = df.with_columns(pl.lit(0.0).cast(pl.Float64).alias("fii_net_cr"))
+
+            if 'dii_buy_cr' in df.columns and 'dii_sell_cr' in df.columns:
                 df = df.with_columns(
                     (pl.col("dii_buy_cr") - pl.col("dii_sell_cr")).alias("dii_net_cr")
                 )
-            final_cols = ['date'] + [col for col in [
-                'fii_buy_cr', 'fii_sell_cr', 'fii_net_cr',
-                'dii_buy_cr', 'dii_sell_cr', 'dii_net_cr'
-            ] if col in df.columns]
-            df = df.select(final_cols)
+            elif 'dii_net_cr' not in df.columns: # Ensure column exists if not calculable
+                 df = df.with_columns(pl.lit(0.0).cast(pl.Float64).alias("dii_net_cr"))
+
+            # Ensure all expected final columns are present, adding them with 0.0 if missing
+            all_expected_numeric_cols = ['fii_buy_cr', 'fii_sell_cr', 'fii_net_cr', 'dii_buy_cr', 'dii_sell_cr', 'dii_net_cr']
+            for col_name in all_expected_numeric_cols:
+                if col_name not in df.columns:
+                    df = df.with_columns(pl.lit(0.0).cast(pl.Float64).alias(col_name))
+
+            # Define final_cols based on a fixed desired schema
+            final_cols = ['date', 'fii_buy_cr', 'fii_sell_cr', 'fii_net_cr', 'dii_buy_cr', 'dii_sell_cr', 'dii_net_cr']
+            if 'date' not in df.columns: # Ensure date column exists, even if all null
+                 df = df.with_columns(pl.lit(None).cast(pl.Date).alias("date"))
+
+            df = df.select(final_cols) # Select in fixed order
+
             logger.info(f"Processed {len(df)} records from API")
             return df
         except Exception as e:
@@ -280,23 +319,26 @@ class NSE_FII_DII_Scraper:
             if not rows:
                 return None
             df = pl.DataFrame(rows, schema=unique_headers)
+
             column_mapping = {}
-            for col in df.columns:
-                col_lower = col.lower()
-                if 'date' in col_lower:
+            for col in df.columns: # 'col' is the original header string from HTML
+                col_text_lower = col.lower() # Use a new variable for the lowercased version for checks
+
+                if 'date' in col_text_lower:
                     column_mapping[col] = 'date'
-                elif 'fii' in col_lower and 'buy' in col_lower:
+                elif 'fii' in col_text_lower and ('buy' in col_text_lower or 'purchase' in col_text_lower):
                     column_mapping[col] = 'fii_buy_cr'
-                elif 'fii' in col_lower and 'sell' in col_lower:
+                elif 'fii' in col_text_lower and ('sell' in col_text_lower or 'sales' in col_text_lower):
                     column_mapping[col] = 'fii_sell_cr'
-                elif 'fii' in col_lower and 'net' in col_lower:
+                elif 'fii' in col_text_lower and 'net' in col_text_lower: # Assuming 'net' is sufficient for FII Net
                     column_mapping[col] = 'fii_net_cr'
-                elif 'dii' in col_lower and 'buy' in col_lower:
+                elif 'dii' in col_text_lower and ('buy' in col_text_lower or 'purchase' in col_text_lower):
                     column_mapping[col] = 'dii_buy_cr'
-                elif 'dii' in col_lower and 'sell' in col_lower:
+                elif 'dii' in col_text_lower and ('sell' in col_text_lower or 'sales' in col_text_lower):
                     column_mapping[col] = 'dii_sell_cr'
-                elif 'dii' in col_lower and 'net' in col_lower:
+                elif 'dii' in col_text_lower and 'net' in col_text_lower: # Assuming 'net' is sufficient for DII Net
                     column_mapping[col] = 'dii_net_cr'
+
             df = df.rename(column_mapping)
             valid_columns = [col for col in [
                 'date', 'fii_buy_cr', 'fii_sell_cr', 'fii_net_cr',

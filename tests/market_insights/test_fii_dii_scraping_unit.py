@@ -29,6 +29,10 @@ def mock_config_for_scraper(mocker):
     mock_cfg.scraping.nse_fii_dii_api_url = "https://mock_api_url.com/api"
     mock_cfg.scraping.nse_fii_dii_html_url = "https://mock_html_url.com/html"
     mock_cfg.market.trading_holidays = []
+    # Set retry and timeout parameters for fast tests
+    mock_cfg.scraping.max_retries = 1
+    mock_cfg.scraping.retry_delay = 0.01
+    mock_cfg.scraping.request_timeout = 5
     mocker.patch('quandex_core.market_insights.fii_dii_tracker.config', mock_cfg)
     return mock_cfg
 
@@ -38,7 +42,7 @@ def scraper_instance(mock_config_for_scraper):
     # _initialize_db_schema is not a method in the provided source code of NSE_FII_DII_Scraper
     # Its __init__ does not call such a method.
     # DB schema is handled directly in update_database method.
-    scraper = NSE_FII_DII_Scraper(retries=1, backoff_factor=0.01) # Fast retries for tests
+    scraper = NSE_FII_DII_Scraper() # Parameters like retries will be picked from mocked config
     return scraper
 
 class TestScrapeWithApi:

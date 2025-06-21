@@ -21,6 +21,12 @@ def mock_config_for_integration(mocker):
     mock_cfg.scraping.nse_fii_dii_home_url = "https://mock_home_url_integration.com"
     mock_cfg.scraping.nse_fii_dii_api_url = "https://mock_api_url_integration.com/api"
     mock_cfg.scraping.nse_fii_dii_html_url = "https://mock_html_url_integration.com/html"
+
+    # Set specific scraping parameters for test environment
+    mock_cfg.scraping.max_retries = 1  # Fast retries for tests
+    mock_cfg.scraping.retry_delay = 0.01 # Very short delay
+    mock_cfg.scraping.request_timeout = 5   # Short timeout
+
     mock_cfg.market.trading_holidays = [] # Keep simple for tests
 
     # Patch the global config object used by the module
@@ -116,7 +122,7 @@ class TestFiiDiiScrapingToDatabaseFlow:
         mocker.patch.object(scraper, 'scrape', mock_scrape_method)
 
         update_db_spy = mocker.spy(scraper, 'update_database')
-        mock_logger_info = mocker.patch.object(scraper.logger, 'info')
+        mock_logger_info = mocker.patch('quandex_core.market_insights.fii_dii_tracker.logger.info')
 
         await run_tracker_main()
 
@@ -141,6 +147,15 @@ class TestMainOrchestratorFunction:
 
         # Patch the constructor to return our mocked instance
         mocker.patch('quandex_core.market_insights.fii_dii_tracker.NSE_FII_DII_Scraper', return_value=mock_scraper_instance)
+
+        # Mock duckdb.connect for the final log message part in main()
+        mock_db_conn_final_log = MagicMock()
+        mock_db_conn_final_log.execute().fetchdf.return_value = pl.DataFrame({
+            'date': [date(2024, 1, 1)], 'fii_net_cr': [0.0], 'dii_net_cr': [0.0]
+        })
+        # Patch duckdb.connect specifically for the context of fii_dii_tracker.main's final block
+        mocker.patch('quandex_core.market_insights.fii_dii_tracker.duckdb.connect',
+                     return_value=MagicMock(__enter__=MagicMock(return_value=mock_db_conn_final_log)))
 
         # Mock time.time for predictable duration logging
         mocker.patch('time.time', side_effect=[1000.0, 1002.5]) # Start time, end time
@@ -183,6 +198,15 @@ class TestMainOrchestratorFunction:
         mock_scraper_instance.update_database.return_value = False # Simulate DB update failure
 
         mocker.patch('quandex_core.market_insights.fii_dii_tracker.NSE_FII_DII_Scraper', return_value=mock_scraper_instance)
+
+        # Mock duckdb.connect for the final log message part in main()
+        mock_db_conn_for_final_log = MagicMock()
+        mock_db_conn_for_final_log.execute().fetchdf.return_value = pl.DataFrame({
+            'date': [date(2024, 1, 1)], 'fii_net_cr': [0.0], 'dii_net_cr': [0.0]
+        })
+        mocker.patch('quandex_core.market_insights.fii_dii_tracker.duckdb.connect',
+                     return_value=MagicMock(__enter__=MagicMock(return_value=mock_db_conn_for_final_log)))
+
         mocker.patch('time.time', side_effect=[1000.0, 1001.5])
 
         await run_tracker_main()
