@@ -71,6 +71,8 @@ class MarketConfig:
     
     # Market holidays (will be loaded dynamically)
     trading_holidays: List[str] = None
+
+    
     
     def __post_init__(self):
         if self.major_indices is None:
