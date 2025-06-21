@@ -434,8 +434,7 @@ async def main():
     logger.info(f"✅ Tracker completed in {duration:.2f} seconds")
 
     if data is not None:
-        logger.info(f"Data sample:
-{data.head(2)}")
+        logger.info(f"Data sample:\n{data.head(2)}")
         with duckdb.connect(scraper.db_path) as conn:
             latest = conn.execute("""
                 SELECT date, fii_net_cr, dii_net_cr
