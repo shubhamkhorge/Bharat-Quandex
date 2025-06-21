@@ -151,11 +151,11 @@ class NSE_FII_DII_Scraper:
                     records = data.get('data', [])
             else:
                 logger.warning(f"Unexpected API response type: {type(data)}")
-                return None
+                return pl.DataFrame(schema={"date": pl.Date, "fii_buy_cr": pl.Float64, "fii_sell_cr": pl.Float64, "fii_net_cr": pl.Float64, "dii_buy_cr": pl.Float64, "dii_sell_cr": pl.Float64, "dii_net_cr": pl.Float64})
 
             if not records:
                 logger.warning("No records in API response")
-                return None
+                return pl.DataFrame(schema={"date": pl.Date, "fii_buy_cr": pl.Float64, "fii_sell_cr": pl.Float64, "fii_net_cr": pl.Float64, "dii_buy_cr": pl.Float64, "dii_sell_cr": pl.Float64, "dii_net_cr": pl.Float64})
 
             df = pl.DataFrame(records)
 
@@ -228,7 +228,7 @@ class NSE_FII_DII_Scraper:
             return df
         except Exception as e:
             logger.exception(f"API data processing failed: {e}")
-            return None
+            return pl.DataFrame(schema={"date": pl.Date, "fii_buy_cr": pl.Float64, "fii_sell_cr": pl.Float64, "fii_net_cr": pl.Float64, "dii_buy_cr": pl.Float64, "dii_sell_cr": pl.Float64, "dii_net_cr": pl.Float64})
 
     async def scrape_with_playwright(self) -> Optional[pl.DataFrame]:
         """Scrape using Playwright with anti-automation flags and robust error handling"""
@@ -475,16 +475,29 @@ async def main():
     duration = time.time() - start_time
     logger.info(f"✅ Tracker completed in {duration:.2f} seconds")
 
-    if data is not None:
-        logger.info(f"Data sample:\n{data.head(2)}")
-        with duckdb.connect(scraper.db_path) as conn:
-            latest = conn.execute("""
-                SELECT date, fii_net_cr, dii_net_cr
-                FROM institutional_flows
-                ORDER BY date DESC
-                LIMIT 1
-            """).fetchdf()
-            logger.success(f"Latest record: {latest.to_dicts()[0]}")
+    if data is not None: # This 'data' is the result of scraper.scrape()
+        logger.info(f"Data sample:\n{data.head(2)}") # Log sample of data that was processed
+        try:
+            with duckdb.connect(scraper.db_path) as conn:
+                latest_df = conn.execute("""
+                    SELECT date, fii_net_cr, dii_net_cr
+                    FROM institutional_flows
+                    ORDER BY date DESC
+                    LIMIT 1
+                """).fetchdf() # Renamed to latest_df to avoid confusion with 'data' variable
+
+                if latest_df is not None and not latest_df.is_empty():
+                    # Ensure it's a Polars DataFrame for to_dicts()
+                    if isinstance(latest_df, pl.DataFrame) and len(latest_df) > 0:
+                        logger.success(f"Latest record in DB: {latest_df.to_dicts()[0]}")
+                    elif hasattr(latest_df, 'to_dict'): # Fallback for pandas-like DataFrame for safety
+                        logger.success(f"Latest record in DB (non-Polars): {latest_df.to_dict(orient='records')[0] if len(latest_df) > 0 else 'Not found or empty'}")
+                    else:
+                        logger.warning("Latest record query returned data but could not be converted to dict.")
+                else:
+                    logger.warning("No latest record found in institutional_flows table or table is empty.")
+        except Exception as e:
+            logger.error(f"Failed to fetch or log latest record from DB: {e}")
 
 if __name__ == "__main__":
     asyncio.run(main())
