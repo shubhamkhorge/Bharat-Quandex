@@ -1,0 +1,51 @@
+name: Python Test and Coverage
+
+on: [push, pull_request]
+
+permissions:
+  contents: read # Required for checkout
+  # Potentially add other permissions if coverage needs to be written back to PRs/commits
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.13"] # Test on relevant Python versions
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install .[dev]  # Installs project + dev dependencies from pyproject.toml
+
+    - name: Install Playwright browsers
+      run: python -m playwright install --with-deps chromium
+
+    - name: Run tests and generate coverage
+      run: |
+        python -m pytest --cov=quandex_core --cov-report=xml --cov-report=html:coverage_html_report --cov-report=term-missing --cov-fail-under=80
+
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }} # Optional: if using private repo or Codecov token
+        files: ./coverage.xml # Path to coverage file
+        fail_ci_if_error: true # Optional: fail CI if Codecov upload error
+      # Note: Coverage threshold is now handled by pytest's --cov-fail-under option.
+
+    - name: Upload HTML coverage report
+      uses: actions/upload-artifact@v4
+      if: always() # Always upload, even if previous steps failed (e.g. tests failed or coverage below threshold)
+      with:
+        name: coverage-html-report-${{ matrix.python-version }}
+        path: coverage_html_report
+        retention-days: 7 # Optional: set retention for the artifact
