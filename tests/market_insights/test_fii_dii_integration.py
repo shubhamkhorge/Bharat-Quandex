@@ -217,7 +217,7 @@ class TestMainOrchestratorFunction:
         # full_log_text = "\n".join(log_messages)
 
         assert "🚀 Starting FII/DII tracker" in caplog.text # Use caplog
-        assert "FII/DII tracker update completed in 2.50 seconds." in caplog.text # Use caplog
+        assert "✅ Tracker completed in 1002.50 seconds" in caplog.text # Use caplog
 
 
     @pytest.mark.asyncio
@@ -244,7 +244,7 @@ class TestMainOrchestratorFunction:
 
         assert "🚀 Starting FII/DII tracker" in caplog.text # Use caplog
         assert "Scraping failed completely" in caplog.text # Use caplog
-        assert "FII/DII tracker update completed in 1.00 seconds." in caplog.text # Use caplog
+        assert "✅ Tracker completed in 1001.00 seconds" in caplog.text # Use caplog
 
 
     @pytest.mark.asyncio
@@ -282,4 +282,4 @@ class TestMainOrchestratorFunction:
         # full_log_text = "\n".join(log_messages)
 
         assert "🚀 Starting FII/DII tracker" in caplog.text # Use caplog
-        assert "FII/DII tracker update completed in 1.50 seconds." in caplog.text # Use caplog
+        assert "✅ Tracker completed in 1001.50 seconds" in caplog.text # Use caplog

@@ -12105,3 +12105,651 @@ Did you mean "duckdb_constraints"?
 LINE 3:                     FROM institutional_flows
                                  ^
 2025-06-22 10:08:12.420 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:11:41.761 | INFO     | quandex_core.market_insights.fii_dii_tracker:<module>:67 - Logging system initialized
+2025-06-22 11:11:41.761 | INFO     | quandex_core.market_insights.fii_dii_tracker:<module>:68 - DuckDB path: /app/data_vault/market_boards/quandex.duckdb
+2025-06-22 11:11:42.603 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:573 - 🚀 Starting FII/DII tracker
+2025-06-22 11:11:42.604 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:11:42.605 | INFO     | quandex_core.market_insights.fii_dii_tracker:scrape:506 - Trying official API...
+2025-06-22 11:11:42.605 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:113 - Initial request headers: {'User-Agent': 'test_e2e_user_agent', 'Accept': 'application/json, text/plain, */*', 'Accept-Language': 'en-US,en;q=0.9', 'Referer': 'https://www.nseindia.com/', 'Connection': 'keep-alive', 'Cookie': '', 'X-Requested-With': 'XMLHttpRequest'}
+2025-06-22 11:11:42.616 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:132 - Session cookies after home page: {'session_cookie_e2e': 'val_from_session_mock'}
+2025-06-22 11:11:42.617 | INFO     | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:133 - NSE session established via home page.
+2025-06-22 11:11:42.618 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:151 - API status: 200
+2025-06-22 11:11:42.619 | SUCCESS  | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:160 - Fetched FII/DII data from API
+2025-06-22 11:11:42.620 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:161 - API response snippet: {'fiiDii': [{'tradedDate': '26-Aug-2024', 'fiiBuy': '1,000.50', 'fiiSell': '500.25', 'diiBuy': '700.00', 'diiSell': '300.75'}, {'tradedDate': '27-Aug-2024', 'fiiBuy': '1,200.00', 'fiiSell': '600.00', 'diiBuy': '800.00', 'diiSell': '400.00'}]}...
+2025-06-22 11:11:42.629 | INFO     | quandex_core.market_insights.fii_dii_tracker:_process_api_data:254 - Processed 2 records from API
+2025-06-22 11:11:42.683 | SUCCESS  | quandex_core.market_insights.fii_dii_tracker:update_database:565 - Updated 2 records
+2025-06-22 11:11:42.696 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:582 - ✅ Tracker completed in 0.09 seconds
+2025-06-22 11:11:42.697 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:585 - Data sample:
+shape: (2, 7)
+┌────────────┬────────────┬─────────────┬────────────┬────────────┬─────────────┬────────────┐
+│ date       ┆ fii_buy_cr ┆ fii_sell_cr ┆ fii_net_cr ┆ dii_buy_cr ┆ dii_sell_cr ┆ dii_net_cr │
+│ ---        ┆ ---        ┆ ---         ┆ ---        ┆ ---        ┆ ---         ┆ ---        │
+│ date       ┆ f64        ┆ f64         ┆ f64        ┆ f64        ┆ f64         ┆ f64        │
+╞════════════╪════════════╪═════════════╪════════════╪════════════╪═════════════╪════════════╡
+│ 2024-08-26 ┆ 1000.5     ┆ 500.25      ┆ 500.25     ┆ 700.0      ┆ 300.75      ┆ 399.25     │
+│ 2024-08-27 ┆ 1200.0     ┆ 600.0       ┆ 600.0      ┆ 800.0      ┆ 400.0       ┆ 400.0      │
+└────────────┴────────────┴─────────────┴────────────┴────────────┴─────────────┴────────────┘
+2025-06-22 11:11:42.718 | SUCCESS  | quandex_core.market_insights.fii_dii_tracker:main:599 - Latest record in DB: {'date': Timestamp('2024-08-27 00:00:00'), 'fii_net_cr': 600.0, 'dii_net_cr': 400.0}
+2025-06-22 11:11:42.763 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:573 - 🚀 Starting FII/DII tracker
+2025-06-22 11:11:42.764 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:11:42.765 | INFO     | quandex_core.market_insights.fii_dii_tracker:scrape:506 - Trying official API...
+2025-06-22 11:11:42.765 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:113 - Initial request headers: {'User-Agent': 'test_e2e_user_agent', 'Accept': 'application/json, text/plain, */*', 'Accept-Language': 'en-US,en;q=0.9', 'Referer': 'https://www.nseindia.com/', 'Connection': 'keep-alive', 'Cookie': '', 'X-Requested-With': 'XMLHttpRequest'}
+2025-06-22 11:11:42.768 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:132 - Session cookies after home page: {'session_cookie_e2e_playwright': 'val_from_session_mock'}
+2025-06-22 11:11:42.769 | INFO     | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:133 - NSE session established via home page.
+2025-06-22 11:11:42.771 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:151 - API status: 500
+2025-06-22 11:11:42.771 | ERROR    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:164 - API scrape failed: API Server Error
+2025-06-22 11:11:42.772 | INFO     | quandex_core.market_insights.fii_dii_tracker:scrape:510 - API failed, trying Playwright...
+2025-06-22 11:11:42.772 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_playwright:268 - Using Chromium with HTTP/2
+2025-06-22 11:11:42.815 | SUCCESS  | quandex_core.market_insights.fii_dii_tracker:update_database:565 - Updated 1 records
+2025-06-22 11:11:42.824 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:582 - ✅ Tracker completed in 0.06 seconds
+2025-06-22 11:11:42.826 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:585 - Data sample:
+shape: (1, 7)
+┌────────────┬────────────┬─────────────┬────────────┬────────────┬─────────────┬────────────┐
+│ date       ┆ fii_buy_cr ┆ fii_sell_cr ┆ fii_net_cr ┆ dii_buy_cr ┆ dii_sell_cr ┆ dii_net_cr │
+│ ---        ┆ ---        ┆ ---         ┆ ---        ┆ ---        ┆ ---         ┆ ---        │
+│ date       ┆ f64        ┆ f64         ┆ f64        ┆ f64        ┆ f64         ┆ f64        │
+╞════════════╪════════════╪═════════════╪════════════╪════════════╪═════════════╪════════════╡
+│ 2024-08-25 ┆ 2000.1     ┆ 1500.0      ┆ 500.1      ┆ 1700.2     ┆ 1300.0      ┆ 400.2      │
+└────────────┴────────────┴─────────────┴────────────┴────────────┴─────────────┴────────────┘
+2025-06-22 11:11:42.844 | SUCCESS  | quandex_core.market_insights.fii_dii_tracker:main:599 - Latest record in DB: {'date': Timestamp('2024-08-25 00:00:00'), 'fii_net_cr': 500.0999999999999, 'dii_net_cr': 400.20000000000005}
+2025-06-22 11:11:42.913 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:573 - 🚀 Starting FII/DII tracker
+2025-06-22 11:11:42.914 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:11:42.915 | INFO     | quandex_core.market_insights.fii_dii_tracker:scrape:506 - Trying official API...
+2025-06-22 11:11:42.915 | INFO     | quandex_core.market_insights.fii_dii_tracker:scrape:510 - API failed, trying Playwright...
+2025-06-22 11:11:42.916 | ERROR    | quandex_core.market_insights.fii_dii_tracker:scrape:514 - All scraping methods failed, using mock data
+2025-06-22 11:11:42.916 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:582 - ✅ Tracker completed in 0.00 seconds
+2025-06-22 11:11:42.917 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:585 - Data sample:
+shape: (1, 2)
+┌────────────┬────────────┐
+│ date       ┆ fii_buy_cr │
+│ ---        ┆ ---        │
+│ date       ┆ f64        │
+╞════════════╪════════════╡
+│ 2025-06-22 ┆ 1.0        │
+└────────────┴────────────┘
+2025-06-22 11:11:42.946 | ERROR    | quandex_core.market_insights.fii_dii_tracker:main:603 - Failed to fetch or log latest record from DB: Catalog Error: Table with name institutional_flows does not exist!
+Did you mean "duckdb_constraints"?
+
+LINE 3:                     FROM institutional_flows
+                                 ^
+2025-06-22 11:11:42.962 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:573 - 🚀 Starting FII/DII tracker
+2025-06-22 11:11:42.963 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:11:42.991 | SUCCESS  | quandex_core.market_insights.fii_dii_tracker:update_database:565 - Updated 2 records
+2025-06-22 11:11:43.005 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:582 - ✅ Tracker completed in 0.04 seconds
+2025-06-22 11:11:43.006 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:585 - Data sample:
+shape: (2, 7)
+┌────────────┬────────────┬─────────────┬────────────┬────────────┬─────────────┬────────────┐
+│ date       ┆ fii_buy_cr ┆ fii_sell_cr ┆ fii_net_cr ┆ dii_buy_cr ┆ dii_sell_cr ┆ dii_net_cr │
+│ ---        ┆ ---        ┆ ---         ┆ ---        ┆ ---        ┆ ---         ┆ ---        │
+│ date       ┆ f64        ┆ f64         ┆ f64        ┆ f64        ┆ f64         ┆ f64        │
+╞════════════╪════════════╪═════════════╪════════════╪════════════╪═════════════╪════════════╡
+│ 2024-08-26 ┆ 1000.5     ┆ 500.25      ┆ 500.25     ┆ 700.0      ┆ 300.75      ┆ 399.25     │
+│ 2024-08-27 ┆ 1200.0     ┆ 600.0       ┆ 600.0      ┆ 800.0      ┆ 400.0       ┆ 400.0      │
+└────────────┴────────────┴─────────────┴────────────┴────────────┴─────────────┴────────────┘
+2025-06-22 11:11:43.025 | SUCCESS  | quandex_core.market_insights.fii_dii_tracker:main:599 - Latest record in DB: {'date': Timestamp('2024-08-27 00:00:00'), 'fii_net_cr': 600.0, 'dii_net_cr': 400.0}
+2025-06-22 11:11:43.064 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:573 - 🚀 Starting FII/DII tracker
+2025-06-22 11:11:43.065 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:11:43.068 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:582 - ✅ Tracker completed in 0.00 seconds
+2025-06-22 11:11:43.068 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:585 - Data sample:
+shape: (0, 0)
+┌┐
+╞╡
+└┘
+2025-06-22 11:11:43.095 | ERROR    | quandex_core.market_insights.fii_dii_tracker:main:603 - Failed to fetch or log latest record from DB: Catalog Error: Table with name institutional_flows does not exist!
+Did you mean "duckdb_constraints"?
+
+LINE 3:                     FROM institutional_flows
+                                 ^
+2025-06-22 11:11:43.113 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:573 - 🚀 Starting FII/DII tracker
+2025-06-22 11:11:43.113 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:582 - ✅ Tracker completed in 1002.50 seconds
+2025-06-22 11:11:43.114 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:585 - Data sample:
+shape: (2, 7)
+┌────────────┬────────────┬─────────────┬────────────┬────────────┬─────────────┬────────────┐
+│ date       ┆ fii_buy_cr ┆ fii_sell_cr ┆ fii_net_cr ┆ dii_buy_cr ┆ dii_sell_cr ┆ dii_net_cr │
+│ ---        ┆ ---        ┆ ---         ┆ ---        ┆ ---        ┆ ---         ┆ ---        │
+│ date       ┆ f64        ┆ f64         ┆ f64        ┆ f64        ┆ f64         ┆ f64        │
+╞════════════╪════════════╪═════════════╪════════════╪════════════╪═════════════╪════════════╡
+│ 2024-08-26 ┆ 1000.5     ┆ 500.25      ┆ 500.25     ┆ 700.0      ┆ 300.75      ┆ 399.25     │
+│ 2024-08-27 ┆ 1200.0     ┆ 600.0       ┆ 600.0      ┆ 800.0      ┆ 400.0       ┆ 400.0      │
+└────────────┴────────────┴─────────────┴────────────┴────────────┴─────────────┴────────────┘
+2025-06-22 11:11:43.116 | SUCCESS  | quandex_core.market_insights.fii_dii_tracker:main:599 - Latest record in DB: {'date': datetime.date(2024, 1, 1), 'fii_net_cr': 0.0, 'dii_net_cr': 0.0}
+2025-06-22 11:11:43.259 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:573 - 🚀 Starting FII/DII tracker
+2025-06-22 11:11:43.260 | ERROR    | quandex_core.market_insights.fii_dii_tracker:main:580 - Scraping failed completely
+2025-06-22 11:11:43.260 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:582 - ✅ Tracker completed in 1001.00 seconds
+2025-06-22 11:11:43.285 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:573 - 🚀 Starting FII/DII tracker
+2025-06-22 11:11:43.285 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:582 - ✅ Tracker completed in 1001.50 seconds
+2025-06-22 11:11:43.286 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:585 - Data sample:
+shape: (2, 7)
+┌────────────┬────────────┬─────────────┬────────────┬────────────┬─────────────┬────────────┐
+│ date       ┆ fii_buy_cr ┆ fii_sell_cr ┆ fii_net_cr ┆ dii_buy_cr ┆ dii_sell_cr ┆ dii_net_cr │
+│ ---        ┆ ---        ┆ ---         ┆ ---        ┆ ---        ┆ ---         ┆ ---        │
+│ date       ┆ f64        ┆ f64         ┆ f64        ┆ f64        ┆ f64         ┆ f64        │
+╞════════════╪════════════╪═════════════╪════════════╪════════════╪═════════════╪════════════╡
+│ 2024-08-26 ┆ 1000.5     ┆ 500.25      ┆ 500.25     ┆ 700.0      ┆ 300.75      ┆ 399.25     │
+│ 2024-08-27 ┆ 1200.0     ┆ 600.0       ┆ 600.0      ┆ 800.0      ┆ 400.0       ┆ 400.0      │
+└────────────┴────────────┴─────────────┴────────────┴────────────┴─────────────┴────────────┘
+2025-06-22 11:11:43.288 | SUCCESS  | quandex_core.market_insights.fii_dii_tracker:main:599 - Latest record in DB: {'date': datetime.date(2024, 1, 1), 'fii_net_cr': 0.0, 'dii_net_cr': 0.0}
+2025-06-22 11:11:43.301 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:11:43.306 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:113 - Initial request headers: {'User-Agent': 'test_user_agent_scraping', 'Accept': 'application/json, text/plain, */*', 'Accept-Language': 'en-US,en;q=0.9', 'Referer': 'https://www.nseindia.com/', 'Connection': 'keep-alive', 'Cookie': '', 'X-Requested-With': 'XMLHttpRequest'}
+2025-06-22 11:11:43.308 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:132 - Session cookies after home page: {'bm_sv_session_cookie': 'mock_val'}
+2025-06-22 11:11:43.308 | INFO     | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:133 - NSE session established via home page.
+2025-06-22 11:11:43.309 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:151 - API status: 200
+2025-06-22 11:11:43.310 | SUCCESS  | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:160 - Fetched FII/DII data from API
+2025-06-22 11:11:43.311 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:161 - API response snippet: {'fiiDii': [{'tradedDate': '26-Aug-2024', 'fiiBuy': '100'}]}...
+2025-06-22 11:11:43.315 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:11:43.321 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:113 - Initial request headers: {'User-Agent': 'test_user_agent_scraping', 'Accept': 'application/json, text/plain, */*', 'Accept-Language': 'en-US,en;q=0.9', 'Referer': 'https://www.nseindia.com/', 'Connection': 'keep-alive', 'Cookie': '', 'X-Requested-With': 'XMLHttpRequest'}
+2025-06-22 11:11:43.322 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:132 - Session cookies after home page: {'bm_sv_session_cookie': 'mock_val'}
+2025-06-22 11:11:43.323 | INFO     | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:133 - NSE session established via home page.
+2025-06-22 11:11:43.324 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:151 - API status: 401
+2025-06-22 11:11:43.328 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:11:43.336 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:113 - Initial request headers: {'User-Agent': 'test_user_agent_scraping', 'Accept': 'application/json, text/plain, */*', 'Accept-Language': 'en-US,en;q=0.9', 'Referer': 'https://www.nseindia.com/', 'Connection': 'keep-alive', 'Cookie': '', 'X-Requested-With': 'XMLHttpRequest'}
+2025-06-22 11:11:43.338 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:132 - Session cookies after home page: {'bm_sv_session_cookie': 'mock_val'}
+2025-06-22 11:11:43.338 | INFO     | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:133 - NSE session established via home page.
+2025-06-22 11:11:43.342 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:11:43.348 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:113 - Initial request headers: {'User-Agent': 'test_user_agent_scraping', 'Accept': 'application/json, text/plain, */*', 'Accept-Language': 'en-US,en;q=0.9', 'Referer': 'https://www.nseindia.com/', 'Connection': 'keep-alive', 'Cookie': '', 'X-Requested-With': 'XMLHttpRequest'}
+2025-06-22 11:11:43.350 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:132 - Session cookies after home page: {'bm_sv_session_cookie': 'mock_val'}
+2025-06-22 11:11:43.350 | INFO     | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:133 - NSE session established via home page.
+2025-06-22 11:11:43.351 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:151 - API status: 200
+2025-06-22 11:11:43.356 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:11:43.362 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:113 - Initial request headers: {'User-Agent': 'test_user_agent_scraping', 'Accept': 'application/json, text/plain, */*', 'Accept-Language': 'en-US,en;q=0.9', 'Referer': 'https://www.nseindia.com/', 'Connection': 'keep-alive', 'Cookie': '', 'X-Requested-With': 'XMLHttpRequest'}
+2025-06-22 11:11:43.367 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:11:43.372 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_playwright:268 - Using Chromium with HTTP/2
+2025-06-22 11:11:43.382 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:11:43.385 | INFO     | quandex_core.market_insights.fii_dii_tracker:scrape:506 - Trying official API...
+2025-06-22 11:11:43.388 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:11:43.391 | INFO     | quandex_core.market_insights.fii_dii_tracker:scrape:506 - Trying official API...
+2025-06-22 11:11:43.392 | INFO     | quandex_core.market_insights.fii_dii_tracker:scrape:510 - API failed, trying Playwright...
+2025-06-22 11:11:43.395 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:11:43.399 | INFO     | quandex_core.market_insights.fii_dii_tracker:scrape:506 - Trying official API...
+2025-06-22 11:11:43.399 | INFO     | quandex_core.market_insights.fii_dii_tracker:scrape:510 - API failed, trying Playwright...
+2025-06-22 11:11:43.404 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:11:43.409 | INFO     | quandex_core.market_insights.fii_dii_tracker:_process_api_data:254 - Processed 2 records from API
+2025-06-22 11:11:43.414 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:11:43.418 | INFO     | quandex_core.market_insights.fii_dii_tracker:_process_api_data:254 - Processed 1 records from API
+2025-06-22 11:11:43.423 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:11:43.428 | INFO     | quandex_core.market_insights.fii_dii_tracker:_process_api_data:254 - Processed 1 records from API
+2025-06-22 11:11:43.433 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:11:43.438 | INFO     | quandex_core.market_insights.fii_dii_tracker:_process_api_data:254 - Processed 1 records from API
+2025-06-22 11:11:43.443 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:11:43.447 | INFO     | quandex_core.market_insights.fii_dii_tracker:_process_api_data:254 - Processed 1 records from API
+2025-06-22 11:11:43.453 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:11:43.454 | WARNING  | quandex_core.market_insights.fii_dii_tracker:_process_api_data:182 - No records in API response
+2025-06-22 11:11:43.454 | WARNING  | quandex_core.market_insights.fii_dii_tracker:_process_api_data:182 - No records in API response
+2025-06-22 11:11:43.455 | WARNING  | quandex_core.market_insights.fii_dii_tracker:_process_api_data:182 - No records in API response
+2025-06-22 11:11:43.455 | WARNING  | quandex_core.market_insights.fii_dii_tracker:_process_api_data:182 - No records in API response
+2025-06-22 11:11:43.523 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:11:43.524 | WARNING  | quandex_core.market_insights.fii_dii_tracker:_process_api_data:178 - Unexpected API response type: <class 'str'>
+2025-06-22 11:11:43.525 | WARNING  | quandex_core.market_insights.fii_dii_tracker:_process_api_data:178 - Unexpected API response type: <class 'int'>
+2025-06-22 11:11:43.529 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:11:43.532 | INFO     | quandex_core.market_insights.fii_dii_tracker:_process_api_data:254 - Processed 1 records from API
+2025-06-22 11:11:43.536 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:11:43.540 | INFO     | quandex_core.market_insights.fii_dii_tracker:_process_api_data:254 - Processed 1 records from API
+2025-06-22 11:11:43.545 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:11:43.549 | INFO     | quandex_core.market_insights.fii_dii_tracker:_process_api_data:254 - Processed 1 records from API
+2025-06-22 11:11:43.553 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:11:43.566 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:11:43.571 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:11:43.572 | WARNING  | quandex_core.market_insights.fii_dii_tracker:_generate_mock_data:497 - Generated 3 days of mock data
+2025-06-22 11:11:43.573 | WARNING  | quandex_core.market_insights.fii_dii_tracker:_generate_mock_data:498 - ⚠️ WARNING: Using mock data as fallback. Check your scraping setup.
+2025-06-22 11:11:43.578 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:11:43.579 | WARNING  | quandex_core.market_insights.fii_dii_tracker:_generate_mock_data:497 - Generated 3 days of mock data
+2025-06-22 11:11:43.579 | WARNING  | quandex_core.market_insights.fii_dii_tracker:_generate_mock_data:498 - ⚠️ WARNING: Using mock data as fallback. Check your scraping setup.
+2025-06-22 11:11:43.582 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:11:43.589 | SUCCESS  | quandex_core.market_insights.fii_dii_tracker:update_database:565 - Updated 1 records
+2025-06-22 11:11:43.593 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:11:43.597 | WARNING  | quandex_core.market_insights.fii_dii_tracker:update_database:520 - No data to update
+2025-06-22 11:11:43.601 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:11:43.606 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:11:43.631 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:573 - 🚀 Starting FII/DII tracker
+2025-06-22 11:11:43.632 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:11:43.633 | INFO     | quandex_core.market_insights.fii_dii_tracker:scrape:506 - Trying official API...
+2025-06-22 11:11:43.633 | INFO     | quandex_core.market_insights.fii_dii_tracker:scrape:510 - API failed, trying Playwright...
+2025-06-22 11:11:43.634 | ERROR    | quandex_core.market_insights.fii_dii_tracker:scrape:514 - All scraping methods failed, using mock data
+2025-06-22 11:11:43.634 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:582 - ✅ Tracker completed in 0.00 seconds
+2025-06-22 11:11:43.635 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:585 - Data sample:
+shape: (1, 2)
+┌────────────┬────────────┐
+│ date       ┆ fii_buy_cr │
+│ ---        ┆ ---        │
+│ date       ┆ f64        │
+╞════════════╪════════════╡
+│ 2025-06-22 ┆ 10.0       │
+└────────────┴────────────┘
+2025-06-22 11:11:43.663 | ERROR    | quandex_core.market_insights.fii_dii_tracker:main:603 - Failed to fetch or log latest record from DB: Catalog Error: Table with name institutional_flows does not exist!
+Did you mean "duckdb_constraints"?
+
+LINE 3:                     FROM institutional_flows
+                                 ^
+2025-06-22 11:11:43.677 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:15:45.004 | INFO     | quandex_core.market_insights.fii_dii_tracker:<module>:67 - Logging system initialized
+2025-06-22 11:15:45.005 | INFO     | quandex_core.market_insights.fii_dii_tracker:<module>:68 - DuckDB path: /app/data_vault/market_boards/quandex.duckdb
+2025-06-22 11:15:45.680 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:573 - 🚀 Starting FII/DII tracker
+2025-06-22 11:15:45.681 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:15:45.682 | INFO     | quandex_core.market_insights.fii_dii_tracker:scrape:506 - Trying official API...
+2025-06-22 11:15:45.682 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:113 - Initial request headers: {'User-Agent': 'test_e2e_user_agent', 'Accept': 'application/json, text/plain, */*', 'Accept-Language': 'en-US,en;q=0.9', 'Referer': 'https://www.nseindia.com/', 'Connection': 'keep-alive', 'Cookie': '', 'X-Requested-With': 'XMLHttpRequest'}
+2025-06-22 11:15:45.686 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:132 - Session cookies after home page: {'session_cookie_e2e': 'val_from_session_mock'}
+2025-06-22 11:15:45.687 | INFO     | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:133 - NSE session established via home page.
+2025-06-22 11:15:45.690 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:151 - API status: 200
+2025-06-22 11:15:45.691 | SUCCESS  | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:160 - Fetched FII/DII data from API
+2025-06-22 11:15:45.692 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:161 - API response snippet: {'fiiDii': [{'tradedDate': '26-Aug-2024', 'fiiBuy': '1,000.50', 'fiiSell': '500.25', 'diiBuy': '700.00', 'diiSell': '300.75'}, {'tradedDate': '27-Aug-2024', 'fiiBuy': '1,200.00', 'fiiSell': '600.00', 'diiBuy': '800.00', 'diiSell': '400.00'}]}...
+2025-06-22 11:15:45.701 | INFO     | quandex_core.market_insights.fii_dii_tracker:_process_api_data:254 - Processed 2 records from API
+2025-06-22 11:15:45.755 | SUCCESS  | quandex_core.market_insights.fii_dii_tracker:update_database:565 - Updated 2 records
+2025-06-22 11:15:45.768 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:582 - ✅ Tracker completed in 0.09 seconds
+2025-06-22 11:15:45.770 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:585 - Data sample:
+shape: (2, 7)
+┌────────────┬────────────┬─────────────┬────────────┬────────────┬─────────────┬────────────┐
+│ date       ┆ fii_buy_cr ┆ fii_sell_cr ┆ fii_net_cr ┆ dii_buy_cr ┆ dii_sell_cr ┆ dii_net_cr │
+│ ---        ┆ ---        ┆ ---         ┆ ---        ┆ ---        ┆ ---         ┆ ---        │
+│ date       ┆ f64        ┆ f64         ┆ f64        ┆ f64        ┆ f64         ┆ f64        │
+╞════════════╪════════════╪═════════════╪════════════╪════════════╪═════════════╪════════════╡
+│ 2024-08-26 ┆ 1000.5     ┆ 500.25      ┆ 500.25     ┆ 700.0      ┆ 300.75      ┆ 399.25     │
+│ 2024-08-27 ┆ 1200.0     ┆ 600.0       ┆ 600.0      ┆ 800.0      ┆ 400.0       ┆ 400.0      │
+└────────────┴────────────┴─────────────┴────────────┴────────────┴─────────────┴────────────┘
+2025-06-22 11:15:45.790 | SUCCESS  | quandex_core.market_insights.fii_dii_tracker:main:599 - Latest record in DB: {'date': Timestamp('2024-08-27 00:00:00'), 'fii_net_cr': 600.0, 'dii_net_cr': 400.0}
+2025-06-22 11:15:45.837 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:573 - 🚀 Starting FII/DII tracker
+2025-06-22 11:15:45.838 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:15:45.839 | INFO     | quandex_core.market_insights.fii_dii_tracker:scrape:506 - Trying official API...
+2025-06-22 11:15:45.839 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:113 - Initial request headers: {'User-Agent': 'test_e2e_user_agent', 'Accept': 'application/json, text/plain, */*', 'Accept-Language': 'en-US,en;q=0.9', 'Referer': 'https://www.nseindia.com/', 'Connection': 'keep-alive', 'Cookie': '', 'X-Requested-With': 'XMLHttpRequest'}
+2025-06-22 11:15:45.842 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:132 - Session cookies after home page: {'session_cookie_e2e_playwright': 'val_from_session_mock'}
+2025-06-22 11:15:45.842 | INFO     | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:133 - NSE session established via home page.
+2025-06-22 11:15:45.844 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:151 - API status: 500
+2025-06-22 11:15:45.845 | ERROR    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:164 - API scrape failed: API Server Error
+2025-06-22 11:15:45.845 | INFO     | quandex_core.market_insights.fii_dii_tracker:scrape:510 - API failed, trying Playwright...
+2025-06-22 11:15:45.846 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_playwright:268 - Using Chromium with HTTP/2
+2025-06-22 11:15:45.883 | SUCCESS  | quandex_core.market_insights.fii_dii_tracker:update_database:565 - Updated 1 records
+2025-06-22 11:15:45.892 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:582 - ✅ Tracker completed in 0.05 seconds
+2025-06-22 11:15:45.894 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:585 - Data sample:
+shape: (1, 7)
+┌────────────┬────────────┬─────────────┬────────────┬────────────┬─────────────┬────────────┐
+│ date       ┆ fii_buy_cr ┆ fii_sell_cr ┆ fii_net_cr ┆ dii_buy_cr ┆ dii_sell_cr ┆ dii_net_cr │
+│ ---        ┆ ---        ┆ ---         ┆ ---        ┆ ---        ┆ ---         ┆ ---        │
+│ date       ┆ f64        ┆ f64         ┆ f64        ┆ f64        ┆ f64         ┆ f64        │
+╞════════════╪════════════╪═════════════╪════════════╪════════════╪═════════════╪════════════╡
+│ 2024-08-25 ┆ 2000.1     ┆ 1500.0      ┆ 500.1      ┆ 1700.2     ┆ 1300.0      ┆ 400.2      │
+└────────────┴────────────┴─────────────┴────────────┴────────────┴─────────────┴────────────┘
+2025-06-22 11:15:45.912 | SUCCESS  | quandex_core.market_insights.fii_dii_tracker:main:599 - Latest record in DB: {'date': Timestamp('2024-08-25 00:00:00'), 'fii_net_cr': 500.0999999999999, 'dii_net_cr': 400.20000000000005}
+2025-06-22 11:15:45.964 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:573 - 🚀 Starting FII/DII tracker
+2025-06-22 11:15:45.965 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:15:45.966 | INFO     | quandex_core.market_insights.fii_dii_tracker:scrape:506 - Trying official API...
+2025-06-22 11:15:45.966 | INFO     | quandex_core.market_insights.fii_dii_tracker:scrape:510 - API failed, trying Playwright...
+2025-06-22 11:15:45.966 | ERROR    | quandex_core.market_insights.fii_dii_tracker:scrape:514 - All scraping methods failed, using mock data
+2025-06-22 11:15:45.967 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:582 - ✅ Tracker completed in 0.00 seconds
+2025-06-22 11:15:45.968 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:585 - Data sample:
+shape: (1, 2)
+┌────────────┬────────────┐
+│ date       ┆ fii_buy_cr │
+│ ---        ┆ ---        │
+│ date       ┆ f64        │
+╞════════════╪════════════╡
+│ 2025-06-22 ┆ 1.0        │
+└────────────┴────────────┘
+2025-06-22 11:15:45.995 | ERROR    | quandex_core.market_insights.fii_dii_tracker:main:603 - Failed to fetch or log latest record from DB: Catalog Error: Table with name institutional_flows does not exist!
+Did you mean "duckdb_constraints"?
+
+LINE 3:                     FROM institutional_flows
+                                 ^
+2025-06-22 11:15:46.010 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:573 - 🚀 Starting FII/DII tracker
+2025-06-22 11:15:46.011 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:15:46.040 | SUCCESS  | quandex_core.market_insights.fii_dii_tracker:update_database:565 - Updated 2 records
+2025-06-22 11:15:46.052 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:582 - ✅ Tracker completed in 0.04 seconds
+2025-06-22 11:15:46.053 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:585 - Data sample:
+shape: (2, 7)
+┌────────────┬────────────┬─────────────┬────────────┬────────────┬─────────────┬────────────┐
+│ date       ┆ fii_buy_cr ┆ fii_sell_cr ┆ fii_net_cr ┆ dii_buy_cr ┆ dii_sell_cr ┆ dii_net_cr │
+│ ---        ┆ ---        ┆ ---         ┆ ---        ┆ ---        ┆ ---         ┆ ---        │
+│ date       ┆ f64        ┆ f64         ┆ f64        ┆ f64        ┆ f64         ┆ f64        │
+╞════════════╪════════════╪═════════════╪════════════╪════════════╪═════════════╪════════════╡
+│ 2024-08-26 ┆ 1000.5     ┆ 500.25      ┆ 500.25     ┆ 700.0      ┆ 300.75      ┆ 399.25     │
+│ 2024-08-27 ┆ 1200.0     ┆ 600.0       ┆ 600.0      ┆ 800.0      ┆ 400.0       ┆ 400.0      │
+└────────────┴────────────┴─────────────┴────────────┴────────────┴─────────────┴────────────┘
+2025-06-22 11:15:46.072 | SUCCESS  | quandex_core.market_insights.fii_dii_tracker:main:599 - Latest record in DB: {'date': Timestamp('2024-08-27 00:00:00'), 'fii_net_cr': 600.0, 'dii_net_cr': 400.0}
+2025-06-22 11:15:46.112 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:573 - 🚀 Starting FII/DII tracker
+2025-06-22 11:15:46.113 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:15:46.115 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:582 - ✅ Tracker completed in 0.00 seconds
+2025-06-22 11:15:46.116 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:585 - Data sample:
+shape: (0, 0)
+┌┐
+╞╡
+└┘
+2025-06-22 11:15:46.145 | ERROR    | quandex_core.market_insights.fii_dii_tracker:main:603 - Failed to fetch or log latest record from DB: Catalog Error: Table with name institutional_flows does not exist!
+Did you mean "duckdb_constraints"?
+
+LINE 3:                     FROM institutional_flows
+                                 ^
+2025-06-22 11:15:46.162 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:573 - 🚀 Starting FII/DII tracker
+2025-06-22 11:15:46.163 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:582 - ✅ Tracker completed in 1002.50 seconds
+2025-06-22 11:15:46.164 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:585 - Data sample:
+shape: (2, 7)
+┌────────────┬────────────┬─────────────┬────────────┬────────────┬─────────────┬────────────┐
+│ date       ┆ fii_buy_cr ┆ fii_sell_cr ┆ fii_net_cr ┆ dii_buy_cr ┆ dii_sell_cr ┆ dii_net_cr │
+│ ---        ┆ ---        ┆ ---         ┆ ---        ┆ ---        ┆ ---         ┆ ---        │
+│ date       ┆ f64        ┆ f64         ┆ f64        ┆ f64        ┆ f64         ┆ f64        │
+╞════════════╪════════════╪═════════════╪════════════╪════════════╪═════════════╪════════════╡
+│ 2024-08-26 ┆ 1000.5     ┆ 500.25      ┆ 500.25     ┆ 700.0      ┆ 300.75      ┆ 399.25     │
+│ 2024-08-27 ┆ 1200.0     ┆ 600.0       ┆ 600.0      ┆ 800.0      ┆ 400.0       ┆ 400.0      │
+└────────────┴────────────┴─────────────┴────────────┴────────────┴─────────────┴────────────┘
+2025-06-22 11:15:46.165 | SUCCESS  | quandex_core.market_insights.fii_dii_tracker:main:599 - Latest record in DB: {'date': datetime.date(2024, 1, 1), 'fii_net_cr': 0.0, 'dii_net_cr': 0.0}
+2025-06-22 11:15:46.302 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:573 - 🚀 Starting FII/DII tracker
+2025-06-22 11:15:46.303 | ERROR    | quandex_core.market_insights.fii_dii_tracker:main:580 - Scraping failed completely
+2025-06-22 11:15:46.304 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:582 - ✅ Tracker completed in 1001.00 seconds
+2025-06-22 11:15:46.329 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:573 - 🚀 Starting FII/DII tracker
+2025-06-22 11:15:46.330 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:582 - ✅ Tracker completed in 1001.50 seconds
+2025-06-22 11:15:46.331 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:585 - Data sample:
+shape: (2, 7)
+┌────────────┬────────────┬─────────────┬────────────┬────────────┬─────────────┬────────────┐
+│ date       ┆ fii_buy_cr ┆ fii_sell_cr ┆ fii_net_cr ┆ dii_buy_cr ┆ dii_sell_cr ┆ dii_net_cr │
+│ ---        ┆ ---        ┆ ---         ┆ ---        ┆ ---        ┆ ---         ┆ ---        │
+│ date       ┆ f64        ┆ f64         ┆ f64        ┆ f64        ┆ f64         ┆ f64        │
+╞════════════╪════════════╪═════════════╪════════════╪════════════╪═════════════╪════════════╡
+│ 2024-08-26 ┆ 1000.5     ┆ 500.25      ┆ 500.25     ┆ 700.0      ┆ 300.75      ┆ 399.25     │
+│ 2024-08-27 ┆ 1200.0     ┆ 600.0       ┆ 600.0      ┆ 800.0      ┆ 400.0       ┆ 400.0      │
+└────────────┴────────────┴─────────────┴────────────┴────────────┴─────────────┴────────────┘
+2025-06-22 11:15:46.333 | SUCCESS  | quandex_core.market_insights.fii_dii_tracker:main:599 - Latest record in DB: {'date': datetime.date(2024, 1, 1), 'fii_net_cr': 0.0, 'dii_net_cr': 0.0}
+2025-06-22 11:15:46.348 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:15:46.353 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:113 - Initial request headers: {'User-Agent': 'test_user_agent_scraping', 'Accept': 'application/json, text/plain, */*', 'Accept-Language': 'en-US,en;q=0.9', 'Referer': 'https://www.nseindia.com/', 'Connection': 'keep-alive', 'Cookie': '', 'X-Requested-With': 'XMLHttpRequest'}
+2025-06-22 11:15:46.356 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:132 - Session cookies after home page: {'bm_sv_session_cookie': 'mock_val'}
+2025-06-22 11:15:46.356 | INFO     | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:133 - NSE session established via home page.
+2025-06-22 11:15:46.357 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:151 - API status: 200
+2025-06-22 11:15:46.357 | SUCCESS  | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:160 - Fetched FII/DII data from API
+2025-06-22 11:15:46.358 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:161 - API response snippet: {'fiiDii': [{'tradedDate': '26-Aug-2024', 'fiiBuy': '100'}]}...
+2025-06-22 11:15:46.363 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:15:46.369 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:113 - Initial request headers: {'User-Agent': 'test_user_agent_scraping', 'Accept': 'application/json, text/plain, */*', 'Accept-Language': 'en-US,en;q=0.9', 'Referer': 'https://www.nseindia.com/', 'Connection': 'keep-alive', 'Cookie': '', 'X-Requested-With': 'XMLHttpRequest'}
+2025-06-22 11:15:46.371 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:132 - Session cookies after home page: {'bm_sv_session_cookie': 'mock_val'}
+2025-06-22 11:15:46.371 | INFO     | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:133 - NSE session established via home page.
+2025-06-22 11:15:46.372 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:151 - API status: 401
+2025-06-22 11:15:46.376 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:15:46.386 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:113 - Initial request headers: {'User-Agent': 'test_user_agent_scraping', 'Accept': 'application/json, text/plain, */*', 'Accept-Language': 'en-US,en;q=0.9', 'Referer': 'https://www.nseindia.com/', 'Connection': 'keep-alive', 'Cookie': '', 'X-Requested-With': 'XMLHttpRequest'}
+2025-06-22 11:15:46.388 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:132 - Session cookies after home page: {'bm_sv_session_cookie': 'mock_val'}
+2025-06-22 11:15:46.388 | INFO     | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:133 - NSE session established via home page.
+2025-06-22 11:15:46.394 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:15:46.401 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:113 - Initial request headers: {'User-Agent': 'test_user_agent_scraping', 'Accept': 'application/json, text/plain, */*', 'Accept-Language': 'en-US,en;q=0.9', 'Referer': 'https://www.nseindia.com/', 'Connection': 'keep-alive', 'Cookie': '', 'X-Requested-With': 'XMLHttpRequest'}
+2025-06-22 11:15:46.403 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:132 - Session cookies after home page: {'bm_sv_session_cookie': 'mock_val'}
+2025-06-22 11:15:46.404 | INFO     | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:133 - NSE session established via home page.
+2025-06-22 11:15:46.405 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:151 - API status: 200
+2025-06-22 11:15:46.409 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:15:46.416 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:113 - Initial request headers: {'User-Agent': 'test_user_agent_scraping', 'Accept': 'application/json, text/plain, */*', 'Accept-Language': 'en-US,en;q=0.9', 'Referer': 'https://www.nseindia.com/', 'Connection': 'keep-alive', 'Cookie': '', 'X-Requested-With': 'XMLHttpRequest'}
+2025-06-22 11:15:46.420 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:15:46.426 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_playwright:268 - Using Chromium with HTTP/2
+2025-06-22 11:15:46.437 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:15:46.440 | INFO     | quandex_core.market_insights.fii_dii_tracker:scrape:506 - Trying official API...
+2025-06-22 11:15:46.444 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:15:46.447 | INFO     | quandex_core.market_insights.fii_dii_tracker:scrape:506 - Trying official API...
+2025-06-22 11:15:46.448 | INFO     | quandex_core.market_insights.fii_dii_tracker:scrape:510 - API failed, trying Playwright...
+2025-06-22 11:15:46.452 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:15:46.455 | INFO     | quandex_core.market_insights.fii_dii_tracker:scrape:506 - Trying official API...
+2025-06-22 11:15:46.456 | INFO     | quandex_core.market_insights.fii_dii_tracker:scrape:510 - API failed, trying Playwright...
+2025-06-22 11:15:46.461 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:15:46.467 | INFO     | quandex_core.market_insights.fii_dii_tracker:_process_api_data:254 - Processed 2 records from API
+2025-06-22 11:15:46.472 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:15:46.476 | INFO     | quandex_core.market_insights.fii_dii_tracker:_process_api_data:254 - Processed 1 records from API
+2025-06-22 11:15:46.481 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:15:46.486 | INFO     | quandex_core.market_insights.fii_dii_tracker:_process_api_data:254 - Processed 1 records from API
+2025-06-22 11:15:46.491 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:15:46.498 | INFO     | quandex_core.market_insights.fii_dii_tracker:_process_api_data:254 - Processed 1 records from API
+2025-06-22 11:15:46.504 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:15:46.510 | INFO     | quandex_core.market_insights.fii_dii_tracker:_process_api_data:254 - Processed 1 records from API
+2025-06-22 11:15:46.514 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:15:46.515 | WARNING  | quandex_core.market_insights.fii_dii_tracker:_process_api_data:182 - No records in API response
+2025-06-22 11:15:46.516 | WARNING  | quandex_core.market_insights.fii_dii_tracker:_process_api_data:182 - No records in API response
+2025-06-22 11:15:46.517 | WARNING  | quandex_core.market_insights.fii_dii_tracker:_process_api_data:182 - No records in API response
+2025-06-22 11:15:46.517 | WARNING  | quandex_core.market_insights.fii_dii_tracker:_process_api_data:182 - No records in API response
+2025-06-22 11:15:46.523 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:15:46.524 | WARNING  | quandex_core.market_insights.fii_dii_tracker:_process_api_data:178 - Unexpected API response type: <class 'str'>
+2025-06-22 11:15:46.525 | WARNING  | quandex_core.market_insights.fii_dii_tracker:_process_api_data:178 - Unexpected API response type: <class 'int'>
+2025-06-22 11:15:46.529 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:15:46.532 | INFO     | quandex_core.market_insights.fii_dii_tracker:_process_api_data:254 - Processed 1 records from API
+2025-06-22 11:15:46.540 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:15:46.546 | INFO     | quandex_core.market_insights.fii_dii_tracker:_process_api_data:254 - Processed 1 records from API
+2025-06-22 11:15:46.551 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:15:46.555 | INFO     | quandex_core.market_insights.fii_dii_tracker:_process_api_data:254 - Processed 1 records from API
+2025-06-22 11:15:46.560 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:15:46.573 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:15:46.578 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:15:46.579 | WARNING  | quandex_core.market_insights.fii_dii_tracker:_generate_mock_data:497 - Generated 3 days of mock data
+2025-06-22 11:15:46.580 | WARNING  | quandex_core.market_insights.fii_dii_tracker:_generate_mock_data:498 - ⚠️ WARNING: Using mock data as fallback. Check your scraping setup.
+2025-06-22 11:15:46.585 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:15:46.587 | WARNING  | quandex_core.market_insights.fii_dii_tracker:_generate_mock_data:497 - Generated 3 days of mock data
+2025-06-22 11:15:46.587 | WARNING  | quandex_core.market_insights.fii_dii_tracker:_generate_mock_data:498 - ⚠️ WARNING: Using mock data as fallback. Check your scraping setup.
+2025-06-22 11:15:46.592 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:15:46.597 | SUCCESS  | quandex_core.market_insights.fii_dii_tracker:update_database:565 - Updated 1 records
+2025-06-22 11:15:46.605 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:15:46.610 | WARNING  | quandex_core.market_insights.fii_dii_tracker:update_database:520 - No data to update
+2025-06-22 11:15:46.614 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:15:46.620 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:15:46.645 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:573 - 🚀 Starting FII/DII tracker
+2025-06-22 11:15:46.649 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:15:46.649 | INFO     | quandex_core.market_insights.fii_dii_tracker:scrape:506 - Trying official API...
+2025-06-22 11:15:46.650 | INFO     | quandex_core.market_insights.fii_dii_tracker:scrape:510 - API failed, trying Playwright...
+2025-06-22 11:15:46.651 | ERROR    | quandex_core.market_insights.fii_dii_tracker:scrape:514 - All scraping methods failed, using mock data
+2025-06-22 11:15:46.652 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:582 - ✅ Tracker completed in 0.01 seconds
+2025-06-22 11:15:46.653 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:585 - Data sample:
+shape: (1, 2)
+┌────────────┬────────────┐
+│ date       ┆ fii_buy_cr │
+│ ---        ┆ ---        │
+│ date       ┆ f64        │
+╞════════════╪════════════╡
+│ 2025-06-22 ┆ 10.0       │
+└────────────┴────────────┘
+2025-06-22 11:15:46.684 | ERROR    | quandex_core.market_insights.fii_dii_tracker:main:603 - Failed to fetch or log latest record from DB: Catalog Error: Table with name institutional_flows does not exist!
+Did you mean "duckdb_constraints"?
+
+LINE 3:                     FROM institutional_flows
+                                 ^
+2025-06-22 11:15:46.698 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:16:47.888 | INFO     | quandex_core.market_insights.fii_dii_tracker:<module>:67 - Logging system initialized
+2025-06-22 11:16:47.889 | INFO     | quandex_core.market_insights.fii_dii_tracker:<module>:68 - DuckDB path: /app/data_vault/market_boards/quandex.duckdb
+2025-06-22 11:16:49.083 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:573 - 🚀 Starting FII/DII tracker
+2025-06-22 11:16:49.084 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:16:49.084 | INFO     | quandex_core.market_insights.fii_dii_tracker:scrape:506 - Trying official API...
+2025-06-22 11:16:49.085 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:113 - Initial request headers: {'User-Agent': 'test_e2e_user_agent', 'Accept': 'application/json, text/plain, */*', 'Accept-Language': 'en-US,en;q=0.9', 'Referer': 'https://www.nseindia.com/', 'Connection': 'keep-alive', 'Cookie': '', 'X-Requested-With': 'XMLHttpRequest'}
+2025-06-22 11:16:49.108 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:132 - Session cookies after home page: {'session_cookie_e2e': 'val_from_session_mock'}
+2025-06-22 11:16:49.108 | INFO     | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:133 - NSE session established via home page.
+2025-06-22 11:16:49.113 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:151 - API status: 200
+2025-06-22 11:16:49.115 | SUCCESS  | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:160 - Fetched FII/DII data from API
+2025-06-22 11:16:49.115 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:161 - API response snippet: {'fiiDii': [{'tradedDate': '26-Aug-2024', 'fiiBuy': '1,000.50', 'fiiSell': '500.25', 'diiBuy': '700.00', 'diiSell': '300.75'}, {'tradedDate': '27-Aug-2024', 'fiiBuy': '1,200.00', 'fiiSell': '600.00', 'diiBuy': '800.00', 'diiSell': '400.00'}]}...
+2025-06-22 11:16:49.132 | INFO     | quandex_core.market_insights.fii_dii_tracker:_process_api_data:254 - Processed 2 records from API
+2025-06-22 11:16:49.241 | SUCCESS  | quandex_core.market_insights.fii_dii_tracker:update_database:565 - Updated 2 records
+2025-06-22 11:16:49.297 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:582 - ✅ Tracker completed in 0.21 seconds
+2025-06-22 11:16:49.298 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:585 - Data sample:
+shape: (2, 7)
+┌────────────┬────────────┬─────────────┬────────────┬────────────┬─────────────┬────────────┐
+│ date       ┆ fii_buy_cr ┆ fii_sell_cr ┆ fii_net_cr ┆ dii_buy_cr ┆ dii_sell_cr ┆ dii_net_cr │
+│ ---        ┆ ---        ┆ ---         ┆ ---        ┆ ---        ┆ ---         ┆ ---        │
+│ date       ┆ f64        ┆ f64         ┆ f64        ┆ f64        ┆ f64         ┆ f64        │
+╞════════════╪════════════╪═════════════╪════════════╪════════════╪═════════════╪════════════╡
+│ 2024-08-26 ┆ 1000.5     ┆ 500.25      ┆ 500.25     ┆ 700.0      ┆ 300.75      ┆ 399.25     │
+│ 2024-08-27 ┆ 1200.0     ┆ 600.0       ┆ 600.0      ┆ 800.0      ┆ 400.0       ┆ 400.0      │
+└────────────┴────────────┴─────────────┴────────────┴────────────┴─────────────┴────────────┘
+2025-06-22 11:16:49.319 | SUCCESS  | quandex_core.market_insights.fii_dii_tracker:main:599 - Latest record in DB: {'date': Timestamp('2024-08-27 00:00:00'), 'fii_net_cr': 600.0, 'dii_net_cr': 400.0}
+2025-06-22 11:16:49.368 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:573 - 🚀 Starting FII/DII tracker
+2025-06-22 11:16:49.369 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:16:49.370 | INFO     | quandex_core.market_insights.fii_dii_tracker:scrape:506 - Trying official API...
+2025-06-22 11:16:49.370 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:113 - Initial request headers: {'User-Agent': 'test_e2e_user_agent', 'Accept': 'application/json, text/plain, */*', 'Accept-Language': 'en-US,en;q=0.9', 'Referer': 'https://www.nseindia.com/', 'Connection': 'keep-alive', 'Cookie': '', 'X-Requested-With': 'XMLHttpRequest'}
+2025-06-22 11:16:49.373 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:132 - Session cookies after home page: {'session_cookie_e2e_playwright': 'val_from_session_mock'}
+2025-06-22 11:16:49.374 | INFO     | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:133 - NSE session established via home page.
+2025-06-22 11:16:49.376 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:151 - API status: 500
+2025-06-22 11:16:49.376 | ERROR    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:164 - API scrape failed: API Server Error
+2025-06-22 11:16:49.377 | INFO     | quandex_core.market_insights.fii_dii_tracker:scrape:510 - API failed, trying Playwright...
+2025-06-22 11:16:49.377 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_playwright:268 - Using Chromium with HTTP/2
+2025-06-22 11:16:49.418 | SUCCESS  | quandex_core.market_insights.fii_dii_tracker:update_database:565 - Updated 1 records
+2025-06-22 11:16:49.428 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:582 - ✅ Tracker completed in 0.06 seconds
+2025-06-22 11:16:49.429 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:585 - Data sample:
+shape: (1, 7)
+┌────────────┬────────────┬─────────────┬────────────┬────────────┬─────────────┬────────────┐
+│ date       ┆ fii_buy_cr ┆ fii_sell_cr ┆ fii_net_cr ┆ dii_buy_cr ┆ dii_sell_cr ┆ dii_net_cr │
+│ ---        ┆ ---        ┆ ---         ┆ ---        ┆ ---        ┆ ---         ┆ ---        │
+│ date       ┆ f64        ┆ f64         ┆ f64        ┆ f64        ┆ f64         ┆ f64        │
+╞════════════╪════════════╪═════════════╪════════════╪════════════╪═════════════╪════════════╡
+│ 2024-08-25 ┆ 2000.1     ┆ 1500.0      ┆ 500.1      ┆ 1700.2     ┆ 1300.0      ┆ 400.2      │
+└────────────┴────────────┴─────────────┴────────────┴────────────┴─────────────┴────────────┘
+2025-06-22 11:16:49.448 | SUCCESS  | quandex_core.market_insights.fii_dii_tracker:main:599 - Latest record in DB: {'date': Timestamp('2024-08-25 00:00:00'), 'fii_net_cr': 500.0999999999999, 'dii_net_cr': 400.20000000000005}
+2025-06-22 11:16:49.498 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:573 - 🚀 Starting FII/DII tracker
+2025-06-22 11:16:49.499 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:16:49.499 | INFO     | quandex_core.market_insights.fii_dii_tracker:scrape:506 - Trying official API...
+2025-06-22 11:16:49.500 | INFO     | quandex_core.market_insights.fii_dii_tracker:scrape:510 - API failed, trying Playwright...
+2025-06-22 11:16:49.500 | ERROR    | quandex_core.market_insights.fii_dii_tracker:scrape:514 - All scraping methods failed, using mock data
+2025-06-22 11:16:49.501 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:582 - ✅ Tracker completed in 0.00 seconds
+2025-06-22 11:16:49.501 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:585 - Data sample:
+shape: (1, 2)
+┌────────────┬────────────┐
+│ date       ┆ fii_buy_cr │
+│ ---        ┆ ---        │
+│ date       ┆ f64        │
+╞════════════╪════════════╡
+│ 2025-06-22 ┆ 1.0        │
+└────────────┴────────────┘
+2025-06-22 11:16:49.530 | ERROR    | quandex_core.market_insights.fii_dii_tracker:main:603 - Failed to fetch or log latest record from DB: Catalog Error: Table with name institutional_flows does not exist!
+Did you mean "duckdb_constraints"?
+
+LINE 3:                     FROM institutional_flows
+                                 ^
+2025-06-22 11:16:49.546 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:573 - 🚀 Starting FII/DII tracker
+2025-06-22 11:16:49.546 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:16:49.574 | SUCCESS  | quandex_core.market_insights.fii_dii_tracker:update_database:565 - Updated 2 records
+2025-06-22 11:16:49.605 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:582 - ✅ Tracker completed in 0.06 seconds
+2025-06-22 11:16:49.606 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:585 - Data sample:
+shape: (2, 7)
+┌────────────┬────────────┬─────────────┬────────────┬────────────┬─────────────┬────────────┐
+│ date       ┆ fii_buy_cr ┆ fii_sell_cr ┆ fii_net_cr ┆ dii_buy_cr ┆ dii_sell_cr ┆ dii_net_cr │
+│ ---        ┆ ---        ┆ ---         ┆ ---        ┆ ---        ┆ ---         ┆ ---        │
+│ date       ┆ f64        ┆ f64         ┆ f64        ┆ f64        ┆ f64         ┆ f64        │
+╞════════════╪════════════╪═════════════╪════════════╪════════════╪═════════════╪════════════╡
+│ 2024-08-26 ┆ 1000.5     ┆ 500.25      ┆ 500.25     ┆ 700.0      ┆ 300.75      ┆ 399.25     │
+│ 2024-08-27 ┆ 1200.0     ┆ 600.0       ┆ 600.0      ┆ 800.0      ┆ 400.0       ┆ 400.0      │
+└────────────┴────────────┴─────────────┴────────────┴────────────┴─────────────┴────────────┘
+2025-06-22 11:16:49.628 | SUCCESS  | quandex_core.market_insights.fii_dii_tracker:main:599 - Latest record in DB: {'date': Timestamp('2024-08-27 00:00:00'), 'fii_net_cr': 600.0, 'dii_net_cr': 400.0}
+2025-06-22 11:16:49.669 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:573 - 🚀 Starting FII/DII tracker
+2025-06-22 11:16:49.670 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:16:49.672 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:582 - ✅ Tracker completed in 0.00 seconds
+2025-06-22 11:16:49.673 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:585 - Data sample:
+shape: (0, 0)
+┌┐
+╞╡
+└┘
+2025-06-22 11:16:49.699 | ERROR    | quandex_core.market_insights.fii_dii_tracker:main:603 - Failed to fetch or log latest record from DB: Catalog Error: Table with name institutional_flows does not exist!
+Did you mean "duckdb_constraints"?
+
+LINE 3:                     FROM institutional_flows
+                                 ^
+2025-06-22 11:16:49.717 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:573 - 🚀 Starting FII/DII tracker
+2025-06-22 11:16:49.718 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:582 - ✅ Tracker completed in 1002.50 seconds
+2025-06-22 11:16:49.719 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:585 - Data sample:
+shape: (2, 7)
+┌────────────┬────────────┬─────────────┬────────────┬────────────┬─────────────┬────────────┐
+│ date       ┆ fii_buy_cr ┆ fii_sell_cr ┆ fii_net_cr ┆ dii_buy_cr ┆ dii_sell_cr ┆ dii_net_cr │
+│ ---        ┆ ---        ┆ ---         ┆ ---        ┆ ---        ┆ ---         ┆ ---        │
+│ date       ┆ f64        ┆ f64         ┆ f64        ┆ f64        ┆ f64         ┆ f64        │
+╞════════════╪════════════╪═════════════╪════════════╪════════════╪═════════════╪════════════╡
+│ 2024-08-26 ┆ 1000.5     ┆ 500.25      ┆ 500.25     ┆ 700.0      ┆ 300.75      ┆ 399.25     │
+│ 2024-08-27 ┆ 1200.0     ┆ 600.0       ┆ 600.0      ┆ 800.0      ┆ 400.0       ┆ 400.0      │
+└────────────┴────────────┴─────────────┴────────────┴────────────┴─────────────┴────────────┘
+2025-06-22 11:16:49.721 | SUCCESS  | quandex_core.market_insights.fii_dii_tracker:main:599 - Latest record in DB: {'date': datetime.date(2024, 1, 1), 'fii_net_cr': 0.0, 'dii_net_cr': 0.0}
+2025-06-22 11:16:49.735 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:573 - 🚀 Starting FII/DII tracker
+2025-06-22 11:16:49.735 | ERROR    | quandex_core.market_insights.fii_dii_tracker:main:580 - Scraping failed completely
+2025-06-22 11:16:49.736 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:582 - ✅ Tracker completed in 1001.00 seconds
+2025-06-22 11:16:49.755 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:573 - 🚀 Starting FII/DII tracker
+2025-06-22 11:16:49.755 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:582 - ✅ Tracker completed in 1001.50 seconds
+2025-06-22 11:16:49.756 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:585 - Data sample:
+shape: (2, 7)
+┌────────────┬────────────┬─────────────┬────────────┬────────────┬─────────────┬────────────┐
+│ date       ┆ fii_buy_cr ┆ fii_sell_cr ┆ fii_net_cr ┆ dii_buy_cr ┆ dii_sell_cr ┆ dii_net_cr │
+│ ---        ┆ ---        ┆ ---         ┆ ---        ┆ ---        ┆ ---         ┆ ---        │
+│ date       ┆ f64        ┆ f64         ┆ f64        ┆ f64        ┆ f64         ┆ f64        │
+╞════════════╪════════════╪═════════════╪════════════╪════════════╪═════════════╪════════════╡
+│ 2024-08-26 ┆ 1000.5     ┆ 500.25      ┆ 500.25     ┆ 700.0      ┆ 300.75      ┆ 399.25     │
+│ 2024-08-27 ┆ 1200.0     ┆ 600.0       ┆ 600.0      ┆ 800.0      ┆ 400.0       ┆ 400.0      │
+└────────────┴────────────┴─────────────┴────────────┴────────────┴─────────────┴────────────┘
+2025-06-22 11:16:49.758 | SUCCESS  | quandex_core.market_insights.fii_dii_tracker:main:599 - Latest record in DB: {'date': datetime.date(2024, 1, 1), 'fii_net_cr': 0.0, 'dii_net_cr': 0.0}
+2025-06-22 11:16:49.778 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:16:49.784 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:113 - Initial request headers: {'User-Agent': 'test_user_agent_scraping', 'Accept': 'application/json, text/plain, */*', 'Accept-Language': 'en-US,en;q=0.9', 'Referer': 'https://www.nseindia.com/', 'Connection': 'keep-alive', 'Cookie': '', 'X-Requested-With': 'XMLHttpRequest'}
+2025-06-22 11:16:49.786 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:132 - Session cookies after home page: {'bm_sv_session_cookie': 'mock_val'}
+2025-06-22 11:16:49.786 | INFO     | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:133 - NSE session established via home page.
+2025-06-22 11:16:49.787 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:151 - API status: 200
+2025-06-22 11:16:49.788 | SUCCESS  | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:160 - Fetched FII/DII data from API
+2025-06-22 11:16:49.788 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:161 - API response snippet: {'fiiDii': [{'tradedDate': '26-Aug-2024', 'fiiBuy': '100'}]}...
+2025-06-22 11:16:49.793 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:16:49.799 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:113 - Initial request headers: {'User-Agent': 'test_user_agent_scraping', 'Accept': 'application/json, text/plain, */*', 'Accept-Language': 'en-US,en;q=0.9', 'Referer': 'https://www.nseindia.com/', 'Connection': 'keep-alive', 'Cookie': '', 'X-Requested-With': 'XMLHttpRequest'}
+2025-06-22 11:16:49.800 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:132 - Session cookies after home page: {'bm_sv_session_cookie': 'mock_val'}
+2025-06-22 11:16:49.801 | INFO     | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:133 - NSE session established via home page.
+2025-06-22 11:16:49.802 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:151 - API status: 401
+2025-06-22 11:16:49.806 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:16:49.812 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:113 - Initial request headers: {'User-Agent': 'test_user_agent_scraping', 'Accept': 'application/json, text/plain, */*', 'Accept-Language': 'en-US,en;q=0.9', 'Referer': 'https://www.nseindia.com/', 'Connection': 'keep-alive', 'Cookie': '', 'X-Requested-With': 'XMLHttpRequest'}
+2025-06-22 11:16:49.814 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:132 - Session cookies after home page: {'bm_sv_session_cookie': 'mock_val'}
+2025-06-22 11:16:49.814 | INFO     | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:133 - NSE session established via home page.
+2025-06-22 11:16:49.818 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:16:49.827 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:113 - Initial request headers: {'User-Agent': 'test_user_agent_scraping', 'Accept': 'application/json, text/plain, */*', 'Accept-Language': 'en-US,en;q=0.9', 'Referer': 'https://www.nseindia.com/', 'Connection': 'keep-alive', 'Cookie': '', 'X-Requested-With': 'XMLHttpRequest'}
+2025-06-22 11:16:49.829 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:132 - Session cookies after home page: {'bm_sv_session_cookie': 'mock_val'}
+2025-06-22 11:16:49.829 | INFO     | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:133 - NSE session established via home page.
+2025-06-22 11:16:49.830 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:151 - API status: 200
+2025-06-22 11:16:49.835 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:16:49.841 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_api:113 - Initial request headers: {'User-Agent': 'test_user_agent_scraping', 'Accept': 'application/json, text/plain, */*', 'Accept-Language': 'en-US,en;q=0.9', 'Referer': 'https://www.nseindia.com/', 'Connection': 'keep-alive', 'Cookie': '', 'X-Requested-With': 'XMLHttpRequest'}
+2025-06-22 11:16:49.845 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:16:49.851 | DEBUG    | quandex_core.market_insights.fii_dii_tracker:scrape_with_playwright:268 - Using Chromium with HTTP/2
+2025-06-22 11:16:49.859 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:16:49.862 | INFO     | quandex_core.market_insights.fii_dii_tracker:scrape:506 - Trying official API...
+2025-06-22 11:16:49.865 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:16:49.868 | INFO     | quandex_core.market_insights.fii_dii_tracker:scrape:506 - Trying official API...
+2025-06-22 11:16:49.868 | INFO     | quandex_core.market_insights.fii_dii_tracker:scrape:510 - API failed, trying Playwright...
+2025-06-22 11:16:49.874 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:16:49.877 | INFO     | quandex_core.market_insights.fii_dii_tracker:scrape:506 - Trying official API...
+2025-06-22 11:16:49.877 | INFO     | quandex_core.market_insights.fii_dii_tracker:scrape:510 - API failed, trying Playwright...
+2025-06-22 11:16:49.883 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:16:49.889 | INFO     | quandex_core.market_insights.fii_dii_tracker:_process_api_data:254 - Processed 2 records from API
+2025-06-22 11:16:49.894 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:16:49.898 | INFO     | quandex_core.market_insights.fii_dii_tracker:_process_api_data:254 - Processed 1 records from API
+2025-06-22 11:16:49.903 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:16:49.907 | INFO     | quandex_core.market_insights.fii_dii_tracker:_process_api_data:254 - Processed 1 records from API
+2025-06-22 11:16:49.911 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:16:49.916 | INFO     | quandex_core.market_insights.fii_dii_tracker:_process_api_data:254 - Processed 1 records from API
+2025-06-22 11:16:49.921 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:16:49.926 | INFO     | quandex_core.market_insights.fii_dii_tracker:_process_api_data:254 - Processed 1 records from API
+2025-06-22 11:16:49.930 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:16:49.931 | WARNING  | quandex_core.market_insights.fii_dii_tracker:_process_api_data:182 - No records in API response
+2025-06-22 11:16:49.932 | WARNING  | quandex_core.market_insights.fii_dii_tracker:_process_api_data:182 - No records in API response
+2025-06-22 11:16:49.932 | WARNING  | quandex_core.market_insights.fii_dii_tracker:_process_api_data:182 - No records in API response
+2025-06-22 11:16:49.933 | WARNING  | quandex_core.market_insights.fii_dii_tracker:_process_api_data:182 - No records in API response
+2025-06-22 11:16:49.937 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:16:49.938 | WARNING  | quandex_core.market_insights.fii_dii_tracker:_process_api_data:178 - Unexpected API response type: <class 'str'>
+2025-06-22 11:16:49.938 | WARNING  | quandex_core.market_insights.fii_dii_tracker:_process_api_data:178 - Unexpected API response type: <class 'int'>
+2025-06-22 11:16:49.942 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:16:49.945 | INFO     | quandex_core.market_insights.fii_dii_tracker:_process_api_data:254 - Processed 1 records from API
+2025-06-22 11:16:49.952 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:16:49.955 | INFO     | quandex_core.market_insights.fii_dii_tracker:_process_api_data:254 - Processed 1 records from API
+2025-06-22 11:16:49.959 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:16:49.964 | INFO     | quandex_core.market_insights.fii_dii_tracker:_process_api_data:254 - Processed 1 records from API
+2025-06-22 11:16:49.967 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:16:49.981 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:16:49.986 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:16:49.987 | WARNING  | quandex_core.market_insights.fii_dii_tracker:_generate_mock_data:497 - Generated 3 days of mock data
+2025-06-22 11:16:49.987 | WARNING  | quandex_core.market_insights.fii_dii_tracker:_generate_mock_data:498 - ⚠️ WARNING: Using mock data as fallback. Check your scraping setup.
+2025-06-22 11:16:49.993 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:16:49.994 | WARNING  | quandex_core.market_insights.fii_dii_tracker:_generate_mock_data:497 - Generated 3 days of mock data
+2025-06-22 11:16:49.994 | WARNING  | quandex_core.market_insights.fii_dii_tracker:_generate_mock_data:498 - ⚠️ WARNING: Using mock data as fallback. Check your scraping setup.
+2025-06-22 11:16:49.998 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:16:50.004 | SUCCESS  | quandex_core.market_insights.fii_dii_tracker:update_database:565 - Updated 1 records
+2025-06-22 11:16:50.008 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:16:50.012 | WARNING  | quandex_core.market_insights.fii_dii_tracker:update_database:520 - No data to update
+2025-06-22 11:16:50.018 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:16:50.024 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:16:50.048 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:573 - 🚀 Starting FII/DII tracker
+2025-06-22 11:16:50.049 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
+2025-06-22 11:16:50.049 | INFO     | quandex_core.market_insights.fii_dii_tracker:scrape:506 - Trying official API...
+2025-06-22 11:16:50.050 | INFO     | quandex_core.market_insights.fii_dii_tracker:scrape:510 - API failed, trying Playwright...
+2025-06-22 11:16:50.050 | ERROR    | quandex_core.market_insights.fii_dii_tracker:scrape:514 - All scraping methods failed, using mock data
+2025-06-22 11:16:50.051 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:582 - ✅ Tracker completed in 0.00 seconds
+2025-06-22 11:16:50.051 | INFO     | quandex_core.market_insights.fii_dii_tracker:main:585 - Data sample:
+shape: (1, 2)
+┌────────────┬────────────┐
+│ date       ┆ fii_buy_cr │
+│ ---        ┆ ---        │
+│ date       ┆ f64        │
+╞════════════╪════════════╡
+│ 2025-06-22 ┆ 10.0       │
+└────────────┴────────────┘
+2025-06-22 11:16:50.081 | ERROR    | quandex_core.market_insights.fii_dii_tracker:main:603 - Failed to fetch or log latest record from DB: Catalog Error: Table with name institutional_flows does not exist!
+Did you mean "duckdb_constraints"?
+
+LINE 3:                     FROM institutional_flows
+                                 ^
+2025-06-22 11:16:50.095 | INFO     | quandex_core.market_insights.fii_dii_tracker:__init__:101 - FII/DII scraper initialized
