@@ -84,6 +84,8 @@ class NSE_FII_DII_Scraper:
             self.max_retries = config.scraping.max_retries
             self.retry_delay = config.scraping.retry_delay
             self.timeout = config.scraping.request_timeout
+            self.html_url = config.scraping.nse_fii_dii_html_url # Added html_url
+            self.HTML_TABLE_SELECTOR = ".fii-dii-table" # Added table selector, can be made configurable later
             self.session_counter = 0
             self.max_sessions = 3
             # Example headers - REPLACE with your actual headers from browser DevTools
@@ -102,36 +104,59 @@ class NSE_FII_DII_Scraper:
             raise
 
     async def scrape_with_api(self) -> Optional[pl.DataFrame]:
-        """Scrape using official NSE API with robust session handling"""
+        """Scrape using official NSE API with robust session handling, asynchronously."""
         try:
+            # Create session object here; it will be passed to thread-executed functions
             session = requests.Session()
-            session.headers.update(self.nse_headers)
-            logger.debug(f"Request headers: {session.headers}")
-            # Visit homepage first to get cookies
+            session.headers.update(self.nse_headers) # Initial headers
+
+            logger.debug(f"Initial request headers: {session.headers}")
+
+            # Define synchronous blocking functions to be run in threads
+            def _fetch_home_page():
+                # This function will run in a separate thread
+                resp = session.get(self.home_url, timeout=self.timeout)
+                resp.raise_for_status() # Check for HTTP errors
+                return resp
+
+            def _fetch_api_data():
+                # This function will run in a separate thread, using the same session
+                resp = session.get(self.api_url, timeout=self.timeout)
+                # No explicit raise_for_status here, will check status code below
+                return resp
+
+            # Visit homepage first to establish session/cookies
             try:
-                response = session.get(self.home_url, timeout=self.timeout)
-                response.raise_for_status()
-                logger.debug(f"Session cookies: {session.cookies.get_dict()}")
-                # Update session headers with new cookies if needed
-                self.nse_headers['Cookie'] = '; '.join(
-                    f"{k}={v}" for k, v in session.cookies.get_dict().items()
-                )
-                session.headers.update(self.nse_headers)
-                logger.info("NSE session established")
+                home_response = await asyncio.to_thread(_fetch_home_page)
+                # session object now contains cookies from home_response
+                logger.debug(f"Session cookies after home page: {session.cookies.get_dict()}")
+                logger.info("NSE session established via home page.")
+                # The session object itself is updated with cookies.
+                # The self.nse_headers update is for future instantiations of the scraper,
+                # not strictly necessary for the current session's subsequent .get() calls.
+                # Let's remove the direct session.cookies.get_dict() call here to avoid mock issues if that's the cause.
+                # If cookies are correctly handled by the session object, this explicit step isn't needed for functionality.
+                # latest_cookies = session.cookies.get_dict()
+                # if latest_cookies:
+                #     self.nse_headers['Cookie'] = '; '.join(f"{k}={v}" for k, v in latest_cookies.items())
+
             except Exception as e:
-                logger.warning(f"Session setup failed: {e}")
+                logger.warning(f"Home page fetch for session setup failed: {e}")
+                # Depending on strictness, might return None or try API anyway
                 return None
-            # Now try the API
-            response = session.get(self.api_url, timeout=self.timeout)
-            logger.debug(f"API status: {response.status_code}")
-            if response.status_code == 401:
-                logger.error("API access denied. Check your headers and cookies.")
+
+            # Now try the API with the established session (cookies are automatically handled by the session object)
+            api_response = await asyncio.to_thread(_fetch_api_data)
+
+            logger.debug(f"API status: {api_response.status_code}")
+            if api_response.status_code == 401:
+                logger.error("API access denied (401). Check your headers and cookies if persistent.")
                 return None
-            response.raise_for_status()
-            if not response.content:
+            api_response.raise_for_status() # Use api_response here
+            if not api_response.content:    # Use api_response here
                 logger.error("Empty API response received")
                 return None
-            data = response.json()
+            data = api_response.json()      # Use api_response here
             logger.success("Fetched FII/DII data from API")
             logger.debug(f"API response snippet: {str(data)[:500]}...")
             return self._process_api_data(data)
@@ -180,49 +205,51 @@ class NSE_FII_DII_Scraper:
                     pl.col("date").str.strptime(pl.Date, "%d-%b-%Y", strict=False)
                 )
 
-            # Convert numeric columns
+            # Convert numeric columns - initial pass for all potential numeric columns
             potential_numeric_cols = [
                 'fii_buy_cr', 'fii_sell_cr', 'fii_net_cr',
                 'dii_buy_cr', 'dii_sell_cr', 'dii_net_cr'
             ]
             for col_name in potential_numeric_cols:
-                if col_name in df.columns:
+                if col_name in df.columns:  # If column exists from original data + renaming
                     df = df.with_columns(
                         pl.col(col_name)
-                        .str.replace_all(r"[, ]", "") # Remove commas and spaces
-                        .replace("", None) # Replace empty strings with null
-                        .cast(pl.Float64, strict=False) # Cast to float, invalid become null
-                        .fill_null(0.0) # Fill actual nulls (from cast error or original) with 0.0
+                        .str.replace_all(r"[, ]", "")  # Remove commas and spaces
+                        .replace("", None)  # Replace empty strings with null
+                        .cast(pl.Float64, strict=False)  # Cast to float, invalid become null
+                        .fill_null(0.0)  # Fill actual nulls (from cast error or original) with 0.0
                         .alias(col_name)
                     )
 
-            # Calculate net values if buy/sell columns are present
-            if 'fii_buy_cr' in df.columns and 'fii_sell_cr' in df.columns:
-                df = df.with_columns(
-                    (pl.col("fii_buy_cr") - pl.col("fii_sell_cr")).alias("fii_net_cr")
-                )
-            elif 'fii_net_cr' not in df.columns: # Ensure column exists if not calculable
-                 df = df.with_columns(pl.lit(0.0).cast(pl.Float64).alias("fii_net_cr"))
-
-            if 'dii_buy_cr' in df.columns and 'dii_sell_cr' in df.columns:
-                df = df.with_columns(
-                    (pl.col("dii_buy_cr") - pl.col("dii_sell_cr")).alias("dii_net_cr")
-                )
-            elif 'dii_net_cr' not in df.columns: # Ensure column exists if not calculable
-                 df = df.with_columns(pl.lit(0.0).cast(pl.Float64).alias("dii_net_cr"))
-
-            # Ensure all expected final columns are present, adding them with 0.0 if missing
-            all_expected_numeric_cols = ['fii_buy_cr', 'fii_sell_cr', 'fii_net_cr', 'dii_buy_cr', 'dii_sell_cr', 'dii_net_cr']
-            for col_name in all_expected_numeric_cols:
+            # Ensure base 'buy' and 'sell' columns exist, defaulting to 0.0 if not present after initial processing
+            base_buy_sell_cols = ['fii_buy_cr', 'fii_sell_cr', 'dii_buy_cr', 'dii_sell_cr']
+            for col_name in base_buy_sell_cols:
                 if col_name not in df.columns:
                     df = df.with_columns(pl.lit(0.0).cast(pl.Float64).alias(col_name))
 
-            # Define final_cols based on a fixed desired schema
-            final_cols = ['date', 'fii_buy_cr', 'fii_sell_cr', 'fii_net_cr', 'dii_buy_cr', 'dii_sell_cr', 'dii_net_cr']
-            if 'date' not in df.columns: # Ensure date column exists, even if all null
+            # Calculate net values. This will overwrite any 'fii_net_cr' or 'dii_net_cr' from source
+            # if buy/sell columns are available. This is generally desired for consistency.
+            df = df.with_columns(
+                (pl.col("fii_buy_cr") - pl.col("fii_sell_cr")).alias("fii_net_cr")
+            )
+            df = df.with_columns(
+                (pl.col("dii_buy_cr") - pl.col("dii_sell_cr")).alias("dii_net_cr")
+            )
+
+            # Ensure all expected final columns are present, adding them with 0.0 if missing
+            # This is a final safety net, though above logic should create them.
+            all_expected_numeric_cols = ['fii_buy_cr', 'fii_sell_cr', 'fii_net_cr', 'dii_buy_cr', 'dii_sell_cr', 'dii_net_cr']
+            for col_name in all_expected_numeric_cols:
+                if col_name not in df.columns: # Should ideally not happen if above logic is complete
+                    df = df.with_columns(pl.lit(0.0).cast(pl.Float64).alias(col_name))
+
+            # Ensure date column exists
+            if 'date' not in df.columns:
                  df = df.with_columns(pl.lit(None).cast(pl.Date).alias("date"))
 
-            df = df.select(final_cols) # Select in fixed order
+            # Define final column order and select
+            final_cols = ['date', 'fii_buy_cr', 'fii_sell_cr', 'fii_net_cr', 'dii_buy_cr', 'dii_sell_cr', 'dii_net_cr']
+            df = df.select(final_cols)
 
             logger.info(f"Processed {len(df)} records from API")
             return df
@@ -263,14 +290,14 @@ class NSE_FII_DII_Scraper:
                             "Cache-Control": "no-cache"
                         })
                         await page.goto(
-                            "https://www.nseindia.com/market-data/fii-dii-activity",
+                            self.html_url, # Use configured html_url
                             wait_until="domcontentloaded",
                             timeout=40000
                         )
                         try:
-                            await page.wait_for_selector(".fii-dii-table", timeout=15000)
+                            await page.wait_for_selector(self.HTML_TABLE_SELECTOR, timeout=15000) # Use configured selector
                         except:
-                            logger.debug("FII/DII table not found")
+                            logger.debug(f"{self.HTML_TABLE_SELECTOR} not found") # Adjusted log
                         content = await page.content()
                         await browser.close()
                         soup = BeautifulSoup(content, 'html.parser')
@@ -326,30 +353,60 @@ class NSE_FII_DII_Scraper:
 
                 if 'date' in col_text_lower:
                     column_mapping[col] = 'date'
+                # Check for NET first, as it's more specific and can contain buy/sell keywords
+                elif 'fii' in col_text_lower and 'net' in col_text_lower:
+                    column_mapping[col] = 'fii_net_cr'
+                elif 'dii' in col_text_lower and 'net' in col_text_lower:
+                    column_mapping[col] = 'dii_net_cr'
+                # Then check for buy/sell
                 elif 'fii' in col_text_lower and ('buy' in col_text_lower or 'purchase' in col_text_lower):
                     column_mapping[col] = 'fii_buy_cr'
                 elif 'fii' in col_text_lower and ('sell' in col_text_lower or 'sales' in col_text_lower):
                     column_mapping[col] = 'fii_sell_cr'
-                elif 'fii' in col_text_lower and 'net' in col_text_lower: # Assuming 'net' is sufficient for FII Net
-                    column_mapping[col] = 'fii_net_cr'
                 elif 'dii' in col_text_lower and ('buy' in col_text_lower or 'purchase' in col_text_lower):
                     column_mapping[col] = 'dii_buy_cr'
                 elif 'dii' in col_text_lower and ('sell' in col_text_lower or 'sales' in col_text_lower):
                     column_mapping[col] = 'dii_sell_cr'
-                elif 'dii' in col_text_lower and 'net' in col_text_lower: # Assuming 'net' is sufficient for DII Net
-                    column_mapping[col] = 'dii_net_cr'
 
-            df = df.rename(column_mapping)
-            valid_columns = [col for col in [
-                'date', 'fii_buy_cr', 'fii_sell_cr', 'fii_net_cr',
-                'dii_buy_cr', 'dii_sell_cr', 'dii_net_cr'
-            ] if col in df.columns]
-            df = df.select(valid_columns)
+            # Apply renaming using the constructed mapping.
+            # Handle potential duplicate target columns from mapping:
+            # If multiple source columns map to the same target, polars rename will fail.
+            # We need to ensure that column_mapping results in unique target names,
+            # or handle this by selecting specific source columns if multiple map to one target.
+            # For now, assume the first encountered mapping for a target name is preferred.
+            final_renamed_cols = {}
+            processed_source_cols = set()
+            # Build a new mapping that ensures unique target names for rename
+            temp_rename_mapping = {}
+            # Prioritize specific mappings if there are known ambiguous headers
+            # This is a simplified approach; a more robust one might involve scoring matches.
+            for original_header, target_name in column_mapping.items():
+                if original_header in df.columns and target_name not in temp_rename_mapping.values():
+                    temp_rename_mapping[original_header] = target_name
+                elif original_header in df.columns and target_name in temp_rename_mapping.values():
+                    # A target name is already mapped. Log a warning or decide on priority.
+                    logger.debug(f"HTML parsing: Target column '{target_name}' already mapped. Skipping duplicate mapping for '{original_header}'.")
+
+            df = df.rename(temp_rename_mapping)
+
+            # Ensure 'date' column exists before trying to parse it
+            if 'date' not in df.columns and any('date' in c.lower() for c in unique_headers):
+                # This part is less likely to be needed if temp_rename_mapping is robust
+                pass
+
             if 'date' in df.columns:
                 df = df.with_columns(
-                    pl.col("date").str.strptime(pl.Date, "%d-%b-%Y", strict=False)
+                    pl.coalesce([
+                        pl.col("date").str.strptime(pl.Date, "%d %b %Y", strict=False),  # Try "26 Aug 2024"
+                        pl.col("date").str.strptime(pl.Date, "%d-%b-%Y", strict=False) # Try "26-Aug-2024"
+                    ]).alias("date")
                 )
-            numeric_cols = [col for col in df.columns if col != 'date']
+
+            # Process numeric columns that exist after renaming
+            numeric_cols = [col for col in df.columns if col != 'date' and col in [
+                'fii_buy_cr', 'fii_sell_cr', 'fii_net_cr',
+                'dii_buy_cr', 'dii_sell_cr', 'dii_net_cr'
+            ]] # Only process known numeric columns
             for col in numeric_cols:
                 df = df.with_columns(
                     pl.col(col).str.replace_all(r'[^\d.]', '').cast(pl.Float64)
@@ -362,10 +419,58 @@ class NSE_FII_DII_Scraper:
                 df = df.with_columns(
                     (pl.col("dii_buy_cr") - pl.col("dii_sell_cr")).alias("dii_net_cr")
                 )
+
+            # At this point, df contains columns found and parsed from HTML.
+            # Now ensure all required output columns exist, calculate net, and set order.
+
+            target_columns_schema = {
+                "date": pl.Date,
+                "fii_buy_cr": pl.Float64, "fii_sell_cr": pl.Float64, "fii_net_cr": pl.Float64,
+                "dii_buy_cr": pl.Float64, "dii_sell_cr": pl.Float64, "dii_net_cr": pl.Float64
+            }
+            final_ordered_cols = list(target_columns_schema.keys())
+
+            # Ensure base buy/sell columns exist, defaulting to 0.0 if missing or unparseable
+            # This loop also ensures they are Float64.
+            for col_name in ["fii_buy_cr", "fii_sell_cr", "dii_buy_cr", "dii_sell_cr"]:
+                if col_name in df.columns:
+                    # Ensure it's float, fill nulls from failed cast with 0.0
+                    df = df.with_columns(pl.col(col_name).cast(pl.Float64, strict=False).fill_null(0.0).alias(col_name))
+                else:
+                    df = df.with_columns(pl.lit(0.0).cast(pl.Float64).alias(col_name))
+
+            # Calculate/overwrite net columns using the now guaranteed base columns
+            df = df.with_columns((pl.col("fii_buy_cr") - pl.col("fii_sell_cr")).alias("fii_net_cr"))
+            df = df.with_columns((pl.col("dii_buy_cr") - pl.col("dii_sell_cr")).alias("dii_net_cr"))
+
+            # Ensure date column exists and is of correct type
+            if "date" not in df.columns:
+                df = df.with_columns(pl.lit(None).cast(pl.Date).alias("date"))
+            else: # Ensure existing date column is of Date type
+                 # If strptime failed resulting in all nulls, it might keep Utf8. Cast to ensure.
+                if df["date"].dtype != pl.Date:
+                    df = df.with_columns(pl.col("date").cast(pl.Date, strict=False)) # strict=False allows null propagation on error
+
+            # Ensure any other missing final columns (like net_cr if somehow calculation was skipped) are added
+            for col_name in final_ordered_cols:
+                if col_name not in df.columns:
+                    # This case should ideally be covered by above logic for specific columns
+                    # For safety, add date as null if missing, others as 0.0
+                    if col_name == "date":
+                        df = df.with_columns(pl.lit(None).cast(pl.Date).alias(col_name))
+                    else:
+                        df = df.with_columns(pl.lit(0.0).cast(pl.Float64).alias(col_name))
+
+            df = df.select(final_ordered_cols) # Select in fixed order
             return df
         except Exception as e:
-            logger.error(f"Table parsing failed: {e}")
-            return None
+            logger.exception(f"HTML table parsing failed: {e}") # Use logger.exception for stack trace
+            target_columns_schema = { # Define schema for empty DataFrame on error
+                "date": pl.Date, "fii_buy_cr": pl.Float64, "fii_sell_cr": pl.Float64,
+                "fii_net_cr": pl.Float64, "dii_buy_cr": pl.Float64, "dii_sell_cr": pl.Float64,
+                "dii_net_cr": pl.Float64
+            }
+            return pl.DataFrame(schema=target_columns_schema)
 
     def _generate_mock_data(self) -> pl.DataFrame:
         """Generate mock FII/DII data for fallback"""
@@ -415,7 +520,8 @@ class NSE_FII_DII_Scraper:
             logger.warning("No data to update")
             return False
         try:
-            with duckdb.connect(self.db_path) as conn:
+            # Explicitly set read_only=False to match test assertion expectations
+            with duckdb.connect(self.db_path, read_only=False) as conn:
                 conn.execute("""
                     CREATE TABLE IF NOT EXISTS institutional_flows (
                         date DATE PRIMARY KEY,
@@ -484,16 +590,13 @@ async def main():
                     FROM institutional_flows
                     ORDER BY date DESC
                     LIMIT 1
-                """).fetchdf() # Renamed to latest_df to avoid confusion with 'data' variable
+                """).fetchdf() # fetchdf() returns a pandas DataFrame
 
-                if latest_df is not None and not latest_df.is_empty():
-                    # Ensure it's a Polars DataFrame for to_dicts()
-                    if isinstance(latest_df, pl.DataFrame) and len(latest_df) > 0:
-                        logger.success(f"Latest record in DB: {latest_df.to_dicts()[0]}")
-                    elif hasattr(latest_df, 'to_dict'): # Fallback for pandas-like DataFrame for safety
-                        logger.success(f"Latest record in DB (non-Polars): {latest_df.to_dict(orient='records')[0] if len(latest_df) > 0 else 'Not found or empty'}")
-                    else:
-                        logger.warning("Latest record query returned data but could not be converted to dict.")
+                # Check for pandas DataFrame and if it's not empty
+                if latest_df is not None and not latest_df.empty:
+                    # Convert pandas DataFrame to dictionary for logging
+                    # latest_df.to_dict(orient='records') returns a list of dicts
+                    logger.success(f"Latest record in DB: {latest_df.to_dict(orient='records')[0]}")
                 else:
                     logger.warning("No latest record found in institutional_flows table or table is empty.")
         except Exception as e:

@@ -9,7 +9,7 @@ description = "Sophisticated local trading analysis system for Indian markets"
 authors = [{name = "Solo Quant"}]
 license = {text = "MIT"}
 readme = "README.md"
-requires-python = ">=3.13.3"
+requires-python = ">=3.12"
 
 dependencies = [
     # Data Core

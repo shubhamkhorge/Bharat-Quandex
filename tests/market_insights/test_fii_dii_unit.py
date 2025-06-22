@@ -118,17 +118,49 @@ class TestProcessApiData:
         assert processed_df["dii_net_cr"][0] == 150.0
 
     def test_empty_input(self, scraper_instance):
-        assert scraper_instance._process_api_data([]) is None
-        assert scraper_instance._process_api_data({}) is None
+        expected_schema = {
+            "date": pl.Date, "fii_buy_cr": pl.Float64, "fii_sell_cr": pl.Float64,
+            "fii_net_cr": pl.Float64, "dii_buy_cr": pl.Float64, "dii_sell_cr": pl.Float64,
+            "dii_net_cr": pl.Float64
+        }
+
+        processed_df_list = scraper_instance._process_api_data([])
+        assert processed_df_list is not None
+        assert processed_df_list.is_empty()
+        assert processed_df_list.schema == expected_schema
+
+        processed_df_dict = scraper_instance._process_api_data({})
+        assert processed_df_dict is not None
+        assert processed_df_dict.is_empty()
+        assert processed_df_dict.schema == expected_schema
 
         # Test with empty list inside dict structure
-        assert scraper_instance._process_api_data({"fiiDii": []}) is None
-        assert scraper_instance._process_api_data({"data": []}) is None
+        processed_df_fiidii_empty = scraper_instance._process_api_data({"fiiDii": []})
+        assert processed_df_fiidii_empty is not None
+        assert processed_df_fiidii_empty.is_empty()
+        assert processed_df_fiidii_empty.schema == expected_schema
+
+        processed_df_data_empty = scraper_instance._process_api_data({"data": []})
+        assert processed_df_data_empty is not None
+        assert processed_df_data_empty.is_empty()
+        assert processed_df_data_empty.schema == expected_schema
 
 
     def test_unexpected_input_type(self, scraper_instance):
-        assert scraper_instance._process_api_data("not a dict or list") is None
-        assert scraper_instance._process_api_data(123) is None
+        expected_schema = {
+            "date": pl.Date, "fii_buy_cr": pl.Float64, "fii_sell_cr": pl.Float64,
+            "fii_net_cr": pl.Float64, "dii_buy_cr": pl.Float64, "dii_sell_cr": pl.Float64,
+            "dii_net_cr": pl.Float64
+        }
+        processed_df_str = scraper_instance._process_api_data("not a dict or list")
+        assert processed_df_str is not None
+        assert processed_df_str.is_empty()
+        assert processed_df_str.schema == expected_schema
+
+        processed_df_int = scraper_instance._process_api_data(123)
+        assert processed_df_int is not None
+        assert processed_df_int.is_empty()
+        assert processed_df_int.schema == expected_schema
 
     def test_date_parsing_error(self, scraper_instance):
         api_data = [{"tradedDate": "Invalid Date", "fiiBuy": "100"}]
@@ -258,12 +290,30 @@ class TestGenerateMockData:
 
 @pytest.fixture
 def mock_duckdb_connection(mocker):
-    mock_conn = MagicMock(spec=duckdb.DuckDBPyConnection)
-    mock_conn.execute.return_value = mock_conn # for fluent interface
-    mock_conn.fetchall.return_value = []
-    mock_conn.fetchone.return_value = None
-    mocker.patch('duckdb.connect', return_value=mock_conn)
-    return mock_conn
+    # This mock will be returned by duckdb.connect
+    mock_conn_instance = MagicMock(spec=duckdb.DuckDBPyConnection)
+
+    # Make it a context manager
+    mock_conn_instance.__enter__ = MagicMock(return_value=mock_conn_instance)
+    mock_conn_instance.__exit__ = MagicMock(return_value=None)
+
+    # Configure methods like execute, register, etc. on this instance as needed by tests
+    mock_conn_instance.execute.return_value = mock_conn_instance # for fluent interface
+    mock_conn_instance.fetchall.return_value = []
+    mock_conn_instance.fetchone.return_value = None
+
+    # Make __exit__ call the close method of the instance
+    def exit_calls_close(*args):
+        mock_conn_instance.close() # Call the mock close method
+        return None # __exit__ should return None or bool (False to propagate exception, True to suppress)
+
+    mock_conn_instance.__exit__ = MagicMock(side_effect=exit_calls_close)
+    # register will be spied upon or have side_effect set in specific tests directly on mock_conn_instance
+
+    # Patch duckdb.connect to return this specific, configured mock instance
+    mocker.patch('duckdb.connect', return_value=mock_conn_instance)
+    return mock_conn_instance # Return the instance for tests to use for spying/setting side_effects
+
 
 class TestUpdateDatabase:
     def test_update_database_successful(self, scraper_instance, mock_duckdb_connection, mocker):
@@ -272,21 +322,23 @@ class TestUpdateDatabase:
             "fii_net_cr": [50.0], "dii_buy_cr": [70.0], "dii_sell_cr": [30.0], "dii_net_cr": [40.0]
         })
 
-        # Spy on execute to check SQL calls
-        execute_spy = mocker.spy(mock_duckdb_connection, 'execute')
-        register_spy = mocker.spy(mock_duckdb_connection, 'register')
+        # mock_duckdb_connection is the mock connection object.
+        # Its methods (execute, register, close) are already MagicMocks.
 
         result = scraper_instance.update_database(sample_df)
 
         assert result is True
-        duckdb.connect.assert_called_once_with(database=scraper_instance.db_path, read_only=False)
-        register_spy.assert_called_once_with("temp_fii_dii", sample_df)
+        duckdb.connect.assert_called_once_with(scraper_instance.db_path, read_only=False)
+
+        mock_duckdb_connection.register.assert_called_once_with("temp_fii_dii", sample_df)
 
         # Check for key SQL statements (can be more specific if needed)
-        sql_calls = [call_args[0][0] for call_args in execute_spy.call_args_list]
+        # execute_spy.call_args_list becomes mock_duckdb_connection.execute.call_args_list
+        sql_calls = [call_args[0][0] for call_args in mock_duckdb_connection.execute.call_args_list]
+        print(f"DEBUG: sql_calls for test_update_database_successful: {sql_calls}")
 
         assert any("CREATE TABLE IF NOT EXISTS institutional_flows" in sql for sql in sql_calls)
-        assert any("INSERT INTO institutional_flows" in sql and "ON CONFLICT(date) DO UPDATE SET" in sql for sql in sql_calls)
+        assert any("INSERT INTO institutional_flows" in sql and "ON CONFLICT (date) DO UPDATE SET" in sql for sql in sql_calls) # Added space
         assert any("CREATE OR REPLACE VIEW v_institutional_trends AS" in sql for sql in sql_calls)
         mock_duckdb_connection.close.assert_called_once()
 
@@ -314,19 +366,28 @@ class TestUpdateDatabase:
         result = scraper_instance.update_database(sample_df)
         assert result is False
         mock_logger_error.assert_called_once()
-        assert "Failed to connect to DuckDB" in mock_logger_error.call_args[0][0]
+        # The log message is "Database update failed: {e}"
+        # logger.error takes one string argument here (the f-string)
+        logged_message = mock_logger_error.call_args[0][0]
+        assert "Database update failed:" in logged_message
+        assert "DB Connection Failed" in logged_message # The exception string is part of the message
 
 
     def test_update_database_execution_error(self, scraper_instance, mock_duckdb_connection, mocker):
         sample_df = pl.DataFrame({"date": [date(2024, 8, 26)], "fii_buy_cr": [100.0]})
-        mock_duckdb_connection.execute.side_effect = Exception("SQL Execution Failed")
+        # Ensure execute is a new MagicMock for this test, configured with a side_effect
+        mock_duckdb_connection.execute = MagicMock(side_effect=Exception("SQL Execution Failed"))
 
+        # Patch the global logger used by update_database
         mock_logger_error = mocker.patch('quandex_core.market_insights.fii_dii_tracker.logger.error')
 
         result = scraper_instance.update_database(sample_df)
-        assert result is False
+
+        assert result is False # Should be False as exception occurs
         mock_logger_error.assert_called_once()
-        assert "Error during database update" in mock_logger_error.call_args[0][0]
+        logged_message = mock_logger_error.call_args[0][0]
+        assert "Database update failed:" in logged_message
+        assert "SQL Execution Failed" in logged_message # Exception string is part of the message
         mock_duckdb_connection.close.assert_called_once() # Ensure connection is closed even on error
 
 # More tests to come for _generate_mock_data and update_database

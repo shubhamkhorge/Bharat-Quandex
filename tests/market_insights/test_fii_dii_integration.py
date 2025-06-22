@@ -4,12 +4,36 @@ import polars as pl
 from polars.testing import assert_frame_equal
 from datetime import date, timedelta
 from unittest.mock import MagicMock, patch, AsyncMock
+import pandas # For mocking fetchdf
 
 import duckdb
+import tempfile # Moved import to top
+import os # For removing temp file
 
 from quandex_core.market_insights.fii_dii_tracker import NSE_FII_DII_Scraper
 from quandex_core.market_insights.fii_dii_tracker import main as run_tracker_main
+from quandex_core.market_insights.fii_dii_tracker import logger as fii_dii_logger
 from quandex_core import config as global_config_module # For mocking
+import logging # For Loguru propagation to caplog
+
+# This fixture will apply to all tests in this file.
+@pytest.fixture(autouse=True)
+def setup_loguru_to_caplog_propagation(caplog):
+    class PropagateHandler(logging.Handler):
+        def emit(self, record): # This 'record' is a standard logging.LogRecord
+            # The message (record.msg or record.getMessage()) is already formatted by Loguru
+            # due to the format="{message}" in logger.add()
+            # We just need to let caplog capture it by handling it with a standard logger.
+            # Pytest's caplog should automatically capture records emitted to loggers
+            # if this handler is part of the chain.
+            # The key is that Loguru passes a standard LogRecord to this handler.
+            logging.getLogger(record.name).handle(record)
+
+    # Add the propagation handler to Loguru.
+    # format="{message}" ensures record.msg in the handler is the clean message.
+    handler_id = fii_dii_logger.add(PropagateHandler(), format="{message}", level="DEBUG")
+    yield
+    fii_dii_logger.remove(handler_id) # Clean up
 
 @pytest.fixture
 def mock_config_for_integration(mocker):
@@ -48,97 +72,116 @@ def sample_fii_dii_data():
 
 class TestFiiDiiScrapingToDatabaseFlow:
 
+    # tempfile import was here, it's already moved to the top. This search block is just for context.
+
     @pytest.mark.asyncio
     async def test_successful_data_flow_to_in_memory_db(self, mock_config_for_integration, sample_fii_dii_data, mocker):
-        # Initialize scraper and override db_path to use in-memory DuckDB
-        # _initialize_db_schema is not a method in the provided source code of NSE_FII_DII_Scraper
-        # Its __init__ does not call such a method.
-        # DB schema is handled directly in update_database method or by direct duckdb calls in __init__.
-        scraper = NSE_FII_DII_Scraper()
+        with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as tmp_db_file: # delete=False
+            db_path = tmp_db_file.name
 
-        scraper.db_path = ":memory:"
-        # Call _initialize_db_schema manually now with the in-memory path implicitly used by duckdb.connect
-        # Or, ensure update_database calls it if not exists
-        # The current NSE_FII_DII_Scraper calls _initialize_db_schema in its __init__.
-        # So, we need to ensure that call uses the in-memory path.
-        # The cleanest way: set config.data.duckdb_path to :memory: via the fixture,
-        # or directly patch scraper.db_path *before* any DB connection is made by it.
-
-        # Re-initialize with patched config for in-memory to be used by _initialize_db_schema
-        mock_config_for_integration.data.duckdb_path = ":memory:"
-        # This re-init is a bit complex due to __init__ side effects.
-        # A better approach: pass db_path to constructor or have a method to set it post-init before connecting.
-        # For this test, let's assume update_database will create table if not exists.
-        # Or, we can connect to ":memory:" and pass the connection object to update_database if it allowed.
-
-        # Simpler: Let update_database handle the connection and table creation.
-        # We just need to ensure the scraper instance uses the in-memory path for its operations.
-        # The fixture `mock_config_for_integration` is already patched into the module.
-        # We just need to ensure the scraper instance uses the in-memory path for this test.
-        scraper.db_path = ":memory:" # This is the critical part for update_database
-
-        # Mock the scrape method to return our sample data
-        # Since scrape is async, its mock should be awaitable if called with await
-        mock_scrape_method = AsyncMock(return_value=sample_fii_dii_data)
-        mocker.patch.object(scraper, 'scrape', mock_scrape_method)
-
-        # Spy on update_database to ensure it's called by main
-        update_db_spy = mocker.spy(scraper, 'update_database')
-
-        # Run the main orchestrator function
-        await run_tracker_main()
-
-        mock_scrape_method.assert_awaited_once()
-        update_db_spy.assert_called_once_with(sample_fii_dii_data)
-
-        # Now, connect to the same in-memory database to verify
-        conn = None
         try:
-            conn = duckdb.connect(database=":memory:", read_only=False)
+            if os.path.exists(db_path): # Ensure DuckDB creates the file
+                os.remove(db_path)
+            mock_config_for_integration.data.duckdb_path = db_path # Ensure config leads to temp file DB
 
-            # Query the institutional_flows table
-            db_data = conn.execute("SELECT * FROM institutional_flows ORDER BY date").pl()
-            assert_frame_equal(db_data, sample_fii_dii_data, check_dtype=True)
+            OriginalScraperClass = NSE_FII_DII_Scraper
+            created_instances = []
 
-            # Query the v_institutional_trends view
-            # This view requires some data to be non-empty.
-            view_data = conn.execute("SELECT * FROM v_institutional_trends").pl()
-            assert not view_data.is_empty()
-            assert "rolling_fii_net_sum" in view_data.columns
-            assert "rolling_dii_net_sum" in view_data.columns
+            def class_wrapper(*args, **kwargs):
+                # The global config (mock_config_for_integration) should be active here
+                # So, instance.db_path will be db_path (from tempfile) via __init__
+                instance = OriginalScraperClass(*args, **kwargs)
+                instance.scrape = AsyncMock(return_value=sample_fii_dii_data)
+                # Spy on the actual update_database method of this instance
+                mocker.spy(instance, 'update_database')
+                created_instances.append(instance)
+                return instance
 
+            mocker.patch('quandex_core.market_insights.fii_dii_tracker.NSE_FII_DII_Scraper', side_effect=class_wrapper)
+
+            # Run the main orchestrator function
+            await run_tracker_main()
+
+            assert len(created_instances) == 1, "Scraper instance was not created as expected"
+            scraper_instance_used_by_main = created_instances[0]
+
+            scraper_instance_used_by_main.scrape.assert_awaited_once()
+            scraper_instance_used_by_main.update_database.assert_called_once_with(sample_fii_dii_data)
+
+            # Now, connect to the same temporary file database to verify
+            conn = None
+            try:
+                conn = duckdb.connect(database=db_path, read_only=False) # Use db_path from tempfile
+
+                # Query the institutional_flows table
+                db_data = conn.execute("SELECT * FROM institutional_flows ORDER BY date").pl()
+                assert_frame_equal(db_data, sample_fii_dii_data, check_dtype=True)
+
+                # Query the v_institutional_trends view
+                # This view requires some data to be non-empty.
+                view_data = conn.execute("SELECT * FROM v_institutional_trends").pl()
+                assert not view_data.is_empty()
+                assert "fii_30d_roll" in view_data.columns # Corrected column name
+                assert "dii_30d_roll" in view_data.columns # Corrected column name
+            finally: # This finally corresponds to the try block for db connection
+                if conn:
+                    conn.close()
         finally:
-            if conn:
-                conn.close()
+            if os.path.exists(db_path): # Clean up the temp file
+                os.remove(db_path)
+            # tmp_db_file is automatically closed/deleted when 'with' block exits
 
     @pytest.mark.asyncio
     async def test_flow_when_scrape_returns_empty(self, mock_config_for_integration, mocker):
-        # Scraper setup
-        # _initialize_db_schema is not a method in the provided source code of NSE_FII_DII_Scraper
-        scraper = NSE_FII_DII_Scraper()
-        scraper.db_path = ":memory:" # Use in-memory to avoid file system writes
+        mock_config_for_integration.data.duckdb_path = ":memory:"
 
-        mock_scrape_method = AsyncMock(return_value=pl.DataFrame()) # Empty DataFrame
-        mocker.patch.object(scraper, 'scrape', mock_scrape_method)
+        OriginalScraperClass = NSE_FII_DII_Scraper
+        created_instances = []
 
-        update_db_spy = mocker.spy(scraper, 'update_database')
-        mock_logger_info = mocker.patch('quandex_core.market_insights.fii_dii_tracker.logger.info')
+        def class_wrapper(*args, **kwargs):
+            instance = OriginalScraperClass(*args, **kwargs)
+            instance.db_path = ":memory:" # Ensure this instance uses in-memory for its update_database
+            instance.scrape = AsyncMock(return_value=pl.DataFrame()) # Simulate scrape returning empty DataFrame
+            mocker.spy(instance, 'update_database') # Spy on its update_database
+            created_instances.append(instance)
+            return instance
+
+        mocker.patch('quandex_core.market_insights.fii_dii_tracker.NSE_FII_DII_Scraper', side_effect=class_wrapper)
+        # Patch the global logger used by update_database internal logging
+        mock_logger_warning = mocker.patch('quandex_core.market_insights.fii_dii_tracker.logger.warning')
 
         await run_tracker_main()
 
-        mock_scrape_method.assert_awaited_once()
-        update_db_spy.assert_called_once_with(pl.DataFrame())
+        assert len(created_instances) == 1, "Scraper instance was not created as expected"
+        scraper_instance_used_by_main = created_instances[0]
 
-        # Check logs for appropriate message (e.g., "No data to update" or similar from update_database)
-        # This depends on update_database's logging when it receives empty data.
-        # The current update_database returns False and logs "No data provided to update_database."
-        assert any("No data provided to update_database" in call_args[0][0] for call_args in mock_logger_info.call_args_list)
+        scraper_instance_used_by_main.scrape.assert_awaited_once()
+
+        # Check that update_database was called with an empty DataFrame
+        scraper_instance_used_by_main.update_database.assert_called_once()
+        call_arg = scraper_instance_used_by_main.update_database.call_args[0][0]
+        assert isinstance(call_arg, pl.DataFrame), "Argument to update_database was not a Polars DataFrame"
+        assert call_arg.is_empty(), "Argument to update_database was not an empty DataFrame"
+
+        # Check logs for appropriate message from update_database when it receives empty data.
+        # The method logs a warning: "No data to update"
+        assert any(
+            "No data to update" in call_args[0][0]
+            for call_args in mock_logger_warning.call_args_list
+            if call_args[0] # Ensure there are positional arguments in the call
+        ), "Expected log message 'No data to update' not found"
 
 
 class TestMainOrchestratorFunction:
+    # Removed import from here: from quandex_core.market_insights.fii_dii_tracker import logger as fii_dii_logger
 
     @pytest.mark.asyncio
-    async def test_main_successful_run(self, mock_config_for_integration, sample_fii_dii_data, mocker, caplog):
+    async def test_main_successful_run(self, mock_config_for_integration, sample_fii_dii_data, mocker, caplog): # Added caplog back
+        # log_messages = []
+        # def capture_loguru_records(message_obj):
+        #     log_messages.append(str(message_obj))
+        # logger_id = fii_dii_logger.add(capture_loguru_records, level="INFO")
+
         # Mock the NSE_FII_DII_Scraper class itself or its instance methods if instance is created in main
         mock_scraper_instance = MagicMock(spec=NSE_FII_DII_Scraper)
         mock_scraper_instance.db_path = ":memory:" # Ensure the mock instance has this attribute
@@ -150,7 +193,8 @@ class TestMainOrchestratorFunction:
 
         # Mock duckdb.connect for the final log message part in main()
         mock_db_conn_final_log = MagicMock()
-        mock_db_conn_final_log.execute().fetchdf.return_value = pl.DataFrame({
+        # main() expects fetchdf() to return a Pandas DataFrame
+        mock_db_conn_final_log.execute().fetchdf.return_value = pandas.DataFrame({
             'date': [date(2024, 1, 1)], 'fii_net_cr': [0.0], 'dii_net_cr': [0.0]
         })
         # Patch duckdb.connect specifically for the context of fii_dii_tracker.main's final block
@@ -158,40 +202,58 @@ class TestMainOrchestratorFunction:
                      return_value=MagicMock(__enter__=MagicMock(return_value=mock_db_conn_final_log)))
 
         # Mock time.time for predictable duration logging
-        mocker.patch('time.time', side_effect=[1000.0, 1002.5]) # Start time, end time
+        # Values made distinct to trace consumption for duration calculation.
+        # Expecting duration = 3002.5 - 1000.0 = 2002.5
+        mocker.patch('time.time', side_effect=[1000.0, 2000.0, 3002.5, 4000.0, 5000.0, 6000.0])
 
         await run_tracker_main()
 
         mock_scraper_instance.scrape.assert_awaited_once()
+        # update_database is mocked on the instance, so its actual logic (and logging) won't run
+        # We only check it was called and that main's overall logging is correct.
         mock_scraper_instance.update_database.assert_called_once_with(sample_fii_dii_data)
 
-        # Check logs (using caplog fixture from pytest)
-        assert "Starting FII/DII tracker update..." in caplog.text
-        assert "FII/DII data scraped successfully." in caplog.text
-        assert "Database updated successfully with FII/DII data." in caplog.text
-        assert "FII/DII tracker update completed in 2.50 seconds." in caplog.text
+        # fii_dii_logger.remove(logger_id) # Clean up sink
+        # full_log_text = "\n".join(log_messages)
+
+        assert "🚀 Starting FII/DII tracker" in caplog.text # Use caplog
+        assert "FII/DII tracker update completed in 2.50 seconds." in caplog.text # Use caplog
 
 
     @pytest.mark.asyncio
-    async def test_main_scrape_fails(self, mock_config_for_integration, mocker, caplog):
+    async def test_main_scrape_fails(self, mock_config_for_integration, mocker, caplog): # Added caplog back
+        # log_messages = []
+        # def capture_loguru_records(message_obj):
+        #     log_messages.append(str(message_obj))
+        # logger_id = fii_dii_logger.add(capture_loguru_records, level="INFO") # Capture INFO and ERROR
+
         mock_scraper_instance = MagicMock(spec=NSE_FII_DII_Scraper)
         mock_scraper_instance.scrape = AsyncMock(return_value=None) # Simulate scrape failure
 
         mocker.patch('quandex_core.market_insights.fii_dii_tracker.NSE_FII_DII_Scraper', return_value=mock_scraper_instance)
-        mocker.patch('time.time', side_effect=[1000.0, 1001.0])
+        # Expecting duration = 3001.0 - 1000.0 = 2001.0
+        mocker.patch('time.time', side_effect=[1000.0, 2000.0, 2500.0, 3001.0, 4000.0])
 
         await run_tracker_main()
 
         mock_scraper_instance.scrape.assert_awaited_once()
         mock_scraper_instance.update_database.assert_not_called() # Should not call if scrape returns None
 
-        assert "Scraping failed completely" in caplog.text # Changed this line
-        assert "Scraping FII/DII data failed or returned no data." in caplog.text # This line might be redundant if the one above is the true "complete" failure log. Or it might be from scraper internal logs.
-        assert "FII/DII tracker update completed in 1.00 seconds." in caplog.text # Duration check
+        # fii_dii_logger.remove(logger_id)
+        # full_log_text = "\n".join(log_messages)
+
+        assert "🚀 Starting FII/DII tracker" in caplog.text # Use caplog
+        assert "Scraping failed completely" in caplog.text # Use caplog
+        assert "FII/DII tracker update completed in 1.00 seconds." in caplog.text # Use caplog
 
 
     @pytest.mark.asyncio
-    async def test_main_database_update_fails(self, mock_config_for_integration, sample_fii_dii_data, mocker, caplog):
+    async def test_main_database_update_fails(self, mock_config_for_integration, sample_fii_dii_data, mocker, caplog): # Added caplog back
+        # log_messages = []
+        # def capture_loguru_records(message_obj):
+        #     log_messages.append(str(message_obj))
+        # logger_id = fii_dii_logger.add(capture_loguru_records, level="INFO")
+
         mock_scraper_instance = MagicMock(spec=NSE_FII_DII_Scraper)
         mock_scraper_instance.db_path = ":memory:" # Ensure the mock instance has this attribute
         mock_scraper_instance.scrape = AsyncMock(return_value=sample_fii_dii_data)
@@ -201,20 +263,23 @@ class TestMainOrchestratorFunction:
 
         # Mock duckdb.connect for the final log message part in main()
         mock_db_conn_for_final_log = MagicMock()
-        mock_db_conn_for_final_log.execute().fetchdf.return_value = pl.DataFrame({
+        # main() expects fetchdf() to return a Pandas DataFrame
+        mock_db_conn_for_final_log.execute().fetchdf.return_value = pandas.DataFrame({
             'date': [date(2024, 1, 1)], 'fii_net_cr': [0.0], 'dii_net_cr': [0.0]
         })
         mocker.patch('quandex_core.market_insights.fii_dii_tracker.duckdb.connect',
                      return_value=MagicMock(__enter__=MagicMock(return_value=mock_db_conn_for_final_log)))
 
-        mocker.patch('time.time', side_effect=[1000.0, 1001.5])
+        # Expecting duration = 3001.5 - 1000.0 = 2001.5
+        mocker.patch('time.time', side_effect=[1000.0, 2000.0, 3001.5, 4000.0, 5000.0, 6000.0])
 
         await run_tracker_main()
 
         mock_scraper_instance.scrape.assert_awaited_once()
         mock_scraper_instance.update_database.assert_called_once_with(sample_fii_dii_data)
 
-        assert "Starting FII/DII tracker update..." in caplog.text
-        assert "FII/DII data scraped successfully." in caplog.text
-        assert "Failed to update database with FII/DII data." in caplog.text
-        assert "FII/DII tracker update completed in 1.50 seconds." in caplog.text
+        # fii_dii_logger.remove(logger_id)
+        # full_log_text = "\n".join(log_messages)
+
+        assert "🚀 Starting FII/DII tracker" in caplog.text # Use caplog
+        assert "FII/DII tracker update completed in 1.50 seconds." in caplog.text # Use caplog

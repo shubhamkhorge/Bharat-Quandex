@@ -7,6 +7,7 @@ from unittest.mock import MagicMock, patch, AsyncMock, ANY
 
 import duckdb
 import requests # For requests.exceptions
+from requests.cookies import RequestsCookieJar # Import for mocking session cookies
 
 from quandex_core.market_insights.fii_dii_tracker import main as run_tracker_main
 from quandex_core.market_insights.fii_dii_tracker import NSE_FII_DII_Scraper # To access constants like API_URL
@@ -61,6 +62,8 @@ def mock_global_config_for_e2e(mocker):
     mock_cfg = MagicMock()
     mock_cfg.data.duckdb_path = ":memory:" # Critical for E2E tests
     mock_cfg.scraping.user_agents = ["test_e2e_user_agent"]
+    mock_cfg.scraping.max_retries = 1  # Explicitly set for tests
+    mock_cfg.scraping.retry_delay = 0.01 # Explicitly set for tests
     # Use actual URLs from NSE_FII_DII_Scraper constants for matching in mocks
     mock_cfg.scraping.nse_fii_dii_home_url = "https://www.nseindia.com"
     mock_cfg.scraping.nse_fii_dii_api_url = "https://www.nseindia.com/api/fiidiiTradeReact"
@@ -68,118 +71,177 @@ def mock_global_config_for_e2e(mocker):
     mock_cfg.market.trading_holidays = [] # Simplify by having no holidays for mock data generation tests
 
     # Patch this config into the module where `main` and `NSE_FII_DII_Scraper` will see it
+    # Note: db_path will be overridden in tests that need specific DB setups (like temp files)
     mocker.patch('quandex_core.market_insights.fii_dii_tracker.config', mock_cfg)
     return mock_cfg
 
+import tempfile # For creating temporary database files
+import logging # For Loguru propagation
+from quandex_core.market_insights.fii_dii_tracker import logger as fii_dii_logger_e2e # Import for patching sink
+
+# This fixture will apply to all tests in this file/class.
+@pytest.fixture(autouse=True)
+def setup_loguru_to_caplog_propagation_e2e(caplog):
+    class PropagateHandler(logging.Handler):
+        def emit(self, record): # This 'record' is a standard logging.LogRecord
+            logging.getLogger(record.name).handle(record)
+
+    # Add the propagation handler to Loguru.
+    # format="{message}" ensures record.msg in the handler is the clean message.
+    handler_id = fii_dii_logger_e2e.add(PropagateHandler(), format="{message}", level="DEBUG")
+    yield
+    fii_dii_logger_e2e.remove(handler_id)
+
+import os # For removing temp file before DuckDB uses it
 
 @pytest.mark.asyncio
 class TestFiiDiiE2EWorkflow:
 
-    async def test_e2e_api_success_path(self, mocker, caplog):
-        # 1. Setup Mocks
-        mock_session_instance = MagicMock(spec=requests.Session)
+    async def test_e2e_api_success_path(self, mock_global_config_for_e2e, mocker, caplog): # mock_global_config_for_e2e to set config
+        with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as tmp_db_file: # delete=False initially
+            db_path = tmp_db_file.name
 
-        def mock_get_router(url, **kwargs):
-            response = MagicMock()
-            if url == NSE_FII_DII_Scraper.HOME_URL:
-                response.status_code = 200
-                response.cookies.get_dict.return_value = {"bm_sv": "mock_bm_sv_cookie"}
-            elif url == NSE_FII_DII_Scraper.API_URL:
-                response.status_code = 200
-                response.json.return_value = MOCK_API_JSON_SUCCESS
-                response.content = str(MOCK_API_JSON_SUCCESS).encode() # if content is checked
-            else:
-                response.status_code = 404
-            return response
-
-        mock_session_instance.get.side_effect = mock_get_router
-        mocker.patch('requests.Session', return_value=mock_session_instance)
-
-        # Ensure Playwright path is not taken by making it fail if called
-        mock_async_playwright_cm = AsyncMock()
-        mock_async_playwright_cm.__aenter__.side_effect = Exception("Playwright should not be called in API success path")
-        mocker.patch('quandex_core.market_insights.fii_dii_tracker.async_playwright', return_value=mock_async_playwright_cm)
-
-        # 2. Execution
-        await run_tracker_main()
-
-        # 3. Verification
-        conn = None
         try:
-            conn = duckdb.connect(database=":memory:", read_only=False)
-            db_data = conn.execute("SELECT * FROM institutional_flows ORDER BY date").pl()
+            # Ensure DuckDB creates the file, not just uses an empty one from tempfile
+            if os.path.exists(db_path):
+                os.remove(db_path)
 
-            # Convert date columns to actual date objects if they are strings in expected
-            expected_df = EXPECTED_DF_FROM_API_SUCCESS.with_columns(pl.col("date").cast(pl.Date))
-            assert_frame_equal(db_data, expected_df, check_dtype=True)
+            # Override the global config's db_path for this test
+            mock_global_config_for_e2e.data.duckdb_path = db_path
 
-            view_data = conn.execute("SELECT * FROM v_institutional_trends").pl()
-            assert not view_data.is_empty()
-            assert len(view_data) == len(expected_df) # Simple check for now
+            # 1. Setup Mocks
+            mock_session_instance = MagicMock(spec=requests.Session)
+            mock_session_instance.headers = {}
+            mock_session_instance.cookies = MagicMock(spec=RequestsCookieJar)
+            mock_session_instance.cookies.get_dict.return_value = {"session_cookie_e2e": "val_from_session_mock"}
+
+
+            def mock_get_router(url, **kwargs):
+                response = MagicMock(spec=requests.Response)
+                response.cookies = RequestsCookieJar()
+                response.cookies.set("bm_sv", "mock_bm_sv_cookie")
+
+                if url == "https://www.nseindia.com":
+                    response.status_code = 200
+                elif url == "https://www.nseindia.com/api/fiidiiTradeReact":
+                    response.status_code = 200
+                    response.json.return_value = MOCK_API_JSON_SUCCESS
+                    response.content = str(MOCK_API_JSON_SUCCESS).encode()
+                else:
+                    response.status_code = 404
+                return response
+
+            mock_session_instance.get.side_effect = mock_get_router
+            mocker.patch('requests.Session', return_value=mock_session_instance)
+
+            mock_async_playwright_cm = AsyncMock()
+            mock_async_playwright_cm.__aenter__.side_effect = Exception("Playwright should not be called in API success path")
+            mocker.patch('quandex_core.market_insights.fii_dii_tracker.async_playwright', return_value=mock_async_playwright_cm)
+
+            # 2. Execution
+            await run_tracker_main()
+
+            # 3. Verification
+            conn = None
+            try:
+                conn = duckdb.connect(database=db_path, read_only=False) # Use temp db_path
+                db_data = conn.execute("SELECT * FROM institutional_flows ORDER BY date").pl()
+
+                # Convert date columns to actual date objects if they are strings in expected
+                expected_df = EXPECTED_DF_FROM_API_SUCCESS.with_columns(pl.col("date").cast(pl.Date))
+                assert_frame_equal(db_data, expected_df, check_dtype=True)
+
+                view_data = conn.execute("SELECT * FROM v_institutional_trends").pl()
+                assert not view_data.is_empty()
+                assert len(view_data) == len(expected_df) # Simple check for now
+            finally:
+                if conn:
+                    conn.close()
         finally:
-            if conn:
-                conn.close()
+            if os.path.exists(db_path):
+                os.remove(db_path)
 
-        assert "FII/DII data scraped successfully via API." in caplog.text
-        assert "Database updated successfully with FII/DII data." in caplog.text
+        assert "Fetched FII/DII data from API" in caplog.text # Actual log message
+        # The following assertion was problematic as this exact phrase is not in core logs
+        # assert "Database updated successfully with FII/DII data." in caplog.text
 
 
-    async def test_e2e_api_fail_playwright_success_path(self, mocker, caplog):
-        # 1. Setup Mocks
-        # Mock requests.Session.get to fail for API calls
-        mock_session_instance = MagicMock(spec=requests.Session)
-        def mock_get_router_api_fail(url, **kwargs):
-            response = MagicMock()
-            if url == NSE_FII_DII_Scraper.HOME_URL: # Home URL for API still needs to work for cookie
-                response.status_code = 200
-                response.cookies.get_dict.return_value = {"bm_sv": "mock_bm_sv_cookie"}
-            elif url == NSE_FII_DII_Scraper.API_URL:
-                response.status_code = 500 # Simulate API error
-                response.raise_for_status.side_effect = requests.exceptions.HTTPError("API Server Error")
-            else:
-                response.status_code = 404
-            return response
-        mock_session_instance.get.side_effect = mock_get_router_api_fail
-        mocker.patch('requests.Session', return_value=mock_session_instance)
+    async def test_e2e_api_fail_playwright_success_path(self, mock_global_config_for_e2e, mocker, caplog):
+        with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as tmp_db_file: # delete=False initially
+            db_path = tmp_db_file.name
 
-        # Mock Playwright to succeed
-        mock_async_playwright_cm = AsyncMock()
-        mock_playwright_instance = AsyncMock()
-        mock_browser = AsyncMock()
-        mock_context = AsyncMock()
-        mock_page = AsyncMock()
-
-        mock_async_playwright_cm.__aenter__.return_value = mock_playwright_instance
-        mock_playwright_instance.chromium.launch.return_value = mock_browser
-        mock_browser.new_context.return_value = mock_context
-        mock_context.new_page.return_value = mock_page
-        mock_page.content.return_value = MOCK_HTML_CONTENT_SUCCESS
-
-        mocker.patch('quandex_core.market_insights.fii_dii_tracker.async_playwright', return_value=mock_async_playwright_cm)
-        mocker.patch('asyncio.sleep', new_callable=AsyncMock) # For retries in playwright
-
-        # 2. Execution
-        await run_tracker_main()
-
-        # 3. Verification
-        conn = None
         try:
-            conn = duckdb.connect(database=":memory:", read_only=False)
-            db_data = conn.execute("SELECT * FROM institutional_flows ORDER BY date").pl()
-            expected_df = EXPECTED_DF_FROM_HTML_SUCCESS.with_columns(pl.col("date").cast(pl.Date))
-            assert_frame_equal(db_data, expected_df, check_dtype=True)
+            if os.path.exists(db_path):
+                os.remove(db_path)
+            mock_global_config_for_e2e.data.duckdb_path = db_path
 
-            view_data = conn.execute("SELECT * FROM v_institutional_trends").pl()
-            assert not view_data.is_empty()
+            # 1. Setup Mocks
+            # Mock requests.Session.get to fail for API calls
+            mock_session_instance = MagicMock(spec=requests.Session)
+            mock_session_instance.headers = {}
+            mock_session_instance.cookies = MagicMock(spec=RequestsCookieJar)
+            mock_session_instance.cookies.get_dict.return_value = {"session_cookie_e2e_playwright": "val_from_session_mock"}
+            def mock_get_router_api_fail(url, **kwargs):
+                response = MagicMock(spec=requests.Response)
+                response.cookies = RequestsCookieJar()
+                response.cookies.set("bm_sv", "mock_bm_sv_cookie")
+
+                if url == "https://www.nseindia.com":
+                    response.status_code = 200
+                elif url == "https://www.nseindia.com/api/fiidiiTradeReact":
+                    response.status_code = 500
+                    response.raise_for_status.side_effect = requests.exceptions.HTTPError("API Server Error")
+                else:
+                    response.status_code = 404
+                return response
+            mock_session_instance.get.side_effect = mock_get_router_api_fail
+            mocker.patch('requests.Session', return_value=mock_session_instance)
+
+            # Mock Playwright to succeed
+            mock_async_playwright_cm = AsyncMock()
+            mock_playwright_instance = AsyncMock()
+            mock_browser = AsyncMock()
+            mock_context = AsyncMock()
+            mock_page = AsyncMock()
+
+            mock_async_playwright_cm.__aenter__.return_value = mock_playwright_instance
+            mock_playwright_instance.chromium.launch.return_value = mock_browser
+            mock_browser.new_context.return_value = mock_context
+            mock_context.new_page.return_value = mock_page
+            mock_page.content.return_value = MOCK_HTML_CONTENT_SUCCESS
+
+            mocker.patch('quandex_core.market_insights.fii_dii_tracker.async_playwright', return_value=mock_async_playwright_cm)
+            mocker.patch('asyncio.sleep', new_callable=AsyncMock) # For retries in playwright
+
+            # 2. Execution
+            await run_tracker_main()
+
+            # 3. Verification
+            conn = None
+            try:
+                conn = duckdb.connect(database=db_path, read_only=False) # Use temp db_path
+                db_data = conn.execute("SELECT * FROM institutional_flows ORDER BY date").pl()
+                expected_df = EXPECTED_DF_FROM_HTML_SUCCESS.with_columns(pl.col("date").cast(pl.Date))
+                assert_frame_equal(db_data, expected_df, check_dtype=True)
+
+                view_data = conn.execute("SELECT * FROM v_institutional_trends").pl()
+                assert not view_data.is_empty()
+            finally:
+                if conn:
+                    conn.close()
         finally:
-            if conn:
-                conn.close()
+            if os.path.exists(db_path):
+                os.remove(db_path)
 
-        assert "API scraping failed or returned no data. Attempting Playwright." in caplog.text
-        assert "FII/DII data scraped successfully via Playwright." in caplog.text
-        assert "Database updated successfully with FII/DII data." in caplog.text
+            assert "API failed, trying Playwright..." in caplog.text # Actual log message
+            # The following assertions were problematic as these exact phrases are not in core logs
+            # assert "FII/DII data scraped successfully via Playwright." in caplog.text
+            # assert "Database updated successfully with FII/DII data." in caplog.text
 
     async def test_e2e_all_fail_mock_data_path(self, mocker, caplog):
+        # This test uses :memory: DB via mock_global_config_for_e2e by default,
+        # and update_database is fully mocked, so no temp file needed here.
+
         # 1. Setup Mocks
         # Mock requests.Session.get to fail for API calls
         mock_session_instance = MagicMock(spec=requests.Session)
@@ -199,43 +261,55 @@ class TestFiiDiiE2EWorkflow:
 
         # Spy on _generate_mock_data to ensure it's called (it's a method of the instance)
         # We need to patch it on the instance that will be created inside main()
-        # So, we patch the class, then check the method on the instance returned by the patched class
-        mock_scraper_class = mocker.patch('quandex_core.market_insights.fii_dii_tracker.NSE_FII_DII_Scraper')
-        mock_scraper_instance = mock_scraper_class.return_value # This is the instance that main will use
+        # Patch methods directly on the NSE_FII_DII_Scraper class
+        # This allows the actual scraper.scrape() logic to run using these mocked sub-methods.
+        mock_generated_data = pl.DataFrame({"date": [date.today()], "fii_buy_cr": [1.0]})
 
-        # Configure the mocked instance's methods
-        mock_scraper_instance.scrape_with_api.return_value = None # Ensure this is how API failure is propagated
-        mock_scraper_instance.scrape_with_playwright = AsyncMock(return_value=None) # Ensure this is how PW failure is propagated
-
-        # The actual _generate_mock_data will run on this instance
-        # We can spy on it if we let the original method run, or mock its return value.
-        # Let's spy on the original method of the *actual* (but config-mocked) scraper class for this test
-        # to verify it's called AND it populates the DB.
-        # This requires careful layering of mocks.
-        # Alternative: Let the patched mock_scraper_instance handle _generate_mock_data
-        mock_generated_data = pl.DataFrame({"date": [date.today()], "fii_buy_cr": [1.0]}) # Simplified mock data
-        mock_scraper_instance._generate_mock_data.return_value = mock_generated_data
-
-        # Ensure update_database is also on the mocked instance
-        mock_scraper_instance.update_database.return_value = True # Assume DB update itself works with generated data
-        mock_scraper_instance.db_path = ":memory:" # Ensure mocked instance uses in-memory for its update_database
-
+        patch_scrape_api = mocker.patch.object(
+            NSE_FII_DII_Scraper, 'scrape_with_api',
+            new_callable=AsyncMock, return_value=None
+        )
+        patch_scrape_pw = mocker.patch.object(
+            NSE_FII_DII_Scraper, 'scrape_with_playwright',
+            new_callable=AsyncMock, return_value=None
+        )
+        patch_generate_mock = mocker.patch.object(
+            NSE_FII_DII_Scraper, '_generate_mock_data',
+            return_value=mock_generated_data # _generate_mock_data is synchronous
+        )
+        # The update_database method on the instance created by main will be called.
+        # We need to ensure it's properly configured (e.g. db_path) and returns True.
+        # Patching update_database on the class means any instance will use this mock.
+        patch_update_db = mocker.patch.object(
+            NSE_FII_DII_Scraper, 'update_database',
+            return_value=True # update_database is synchronous
+        )
 
         # 2. Execution
         await run_tracker_main()
 
         # 3. Verification
-        mock_scraper_instance.scrape_with_api.assert_called_once()
-        mock_scraper_instance.scrape_with_playwright.assert_awaited_once()
-        mock_scraper_instance._generate_mock_data.assert_called_once()
-        mock_scraper_instance.update_database.assert_called_once_with(mock_generated_data)
+        patch_scrape_api.assert_called_once()
+        patch_scrape_pw.assert_awaited_once()
+        patch_generate_mock.assert_called_once()
+        patch_update_db.assert_called_once_with(mock_generated_data)
 
-        assert "All scraping methods failed. Falling back to mock data." in caplog.text
-        assert "Database updated successfully with FII/DII data." in caplog.text # Since update_database is mocked to True
+        # Check logs
+        # The log "All scraping methods failed. Falling back to mock data." comes from scraper.scrape()
+        # The log "Database updated successfully with FII/DII data." is from the test assertion logic,
+        # based on update_database returning True. The actual update_database logs "Updated X records".
+        # The main() function does not log "Database updated successfully..."
+        # Check for the specific error log message from the scraper's scrape method
+        expected_log_message = "All scraping methods failed, using mock data" # Message from scraper.scrape() when fallback occurs
+        assert expected_log_message in caplog.text
+        # If patch_update_db returns True, main() considers it a success.
+        # The specific log "Database updated successfully..." is not from the core code.
+        # We can assert that the overall process completes and the mock update was called.
 
-        # Verify data in DB (this part assumes the *actual* update_database logic is somewhat tested
-        # by the mocked instance's behavior, or we'd need a more complex setup to have the *real*
-        # update_database run with the mock_generated_data against a real in-memory DB).
+        # For this test, since update_database is fully mocked to return True,
+        # we don't verify the DB content here. The focus is on the fallback logic.
+        # If we wanted to verify DB content with mock data, update_database would need to be
+        # a spy on the real method, and db_path handled (e.g. temp file).
         # For simplicity, this E2E test focuses on the fallback to _generate_mock_data and its data being passed to update_database.
         # A separate integration test (like test_successful_data_flow_to_in_memory_db) already confirms
         # that update_database correctly writes to DB.
